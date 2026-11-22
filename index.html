@@ -448,6 +448,7 @@ function applyLang(){
   $('howList').innerHTML = t('how').map(function(x){ return '<li>'+x+'</li>'; }).join('');
   document.title = t('appName');
   renderChips(); renderInstall(); renderTheme(); updatePeriodHint(); renderAll();
+  if (lastResult) showResult(lastResult.r, lastResult.second);
 }
 
 /* ---------------- tabs ---------------- */
@@ -506,15 +507,16 @@ $('saveBtn').addEventListener('click', function(){
   if (s<=d){ err.textContent=t('errOrder'); return; }
   if (p!==null && (p<30 || p>220)){ err.textContent=t('errPulse'); $('inPulse').focus(); return; }
   var ms = parseLocal($('inTime').value); if (isNaN(ms)) ms = Date.now();
-  var notes = [], list = t('chipsNote');
-  for (var k in noteSel) if (noteSel[k]) notes.push(list[k]);
-  var free = $('inNote').value.trim(); if (free) notes.push(free);
+  var tags = [];
+  for (var k in noteSel) if (noteSel[k]) tags.push(+k);
+  var free = $('inNote').value.trim().slice(0,200);
   var prev = sorted()[0];
   var r = {id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), t: ms, s: s, d: d};
   if (p!==null) r.p = p;
   if ($('inMed').checked) r.med = true;
   if ($('inIrr').checked) r.irr = true;
-  if (notes.length) r.note = notes.join('、');
+  if (tags.length) r.tags = tags.sort();   // chip indexes, shown in the current language
+  if (free) r.note = free;
   S.readings.push(r); persist();
   var second = prev && Math.abs(ms - prev.t) < 10*60*1000;
   showResult(r, second);
@@ -524,7 +526,9 @@ $('saveBtn').addEventListener('click', function(){
   if (document.activeElement) document.activeElement.blur();
   window.scrollTo({top:0,behavior:'smooth'});
 });
+var lastResult = null;
 function showResult(r, second){
+  lastResult = {r:r, second:second};
   var l = level(r.s, r.d);
   $('resultBox').innerHTML = '<div class="result lv-'+l+'">'+
     '<div class="row" style="justify-content:space-between"><div class="big">'+r.s+'/'+r.d+(r.p?' <span style="font-size:22px;font-weight:600">♥ '+r.p+'</span>':'')+'</div>'+
@@ -533,12 +537,19 @@ function showResult(r, second){
     '<p class="small" style="margin:6px 0 0;opacity:.85">'+(second ? t('secondHint') : t('againHint'))+'</p></div>';
 }
 
+// Quick-note chips (stored as indexes) in the current language, then the typed note.
+function noteText(r){
+  var list = t('chipsNote'), out = [];
+  (r.tags || []).forEach(function(i){ if (list[i]) out.push(list[i]); });
+  if (r.note) out.push(r.note);
+  return out.join(lang==='zh' ? '、' : ', ');
+}
 function rowHTML(r, withDate){
   var meta = [];
   if (r.p) meta.push('♥ '+r.p);
   if (r.med) meta.push('💊');
   if (r.irr) meta.push('⚠ '+t('irrLbl'));
-  if (r.note) meta.push(esc(r.note));
+  if (r.note || r.tags) meta.push(esc(noteText(r)));
   return '<li><div class="when">'+(withDate? fDate(r.t)+'<br>' : '')+fTime(r.t)+'</div>'+
     '<div class="bp"><span class="s">'+r.s+'</span>/<span class="d">'+r.d+'</span></div>'+
     '<div class="meta">'+badge(r.s,r.d)+' '+meta.join(' · ')+'</div>'+
@@ -636,7 +647,7 @@ function chartSVG(a){
 function dailyRows(a){
   var by = {};
   a.forEach(function(r){ var k=dayKey(r.t); (by[k]=by[k]||{t:r.t,am:[],pm:[],notes:[],med:false})[isAM(r.t)?'am':'pm'].push(r);
-    if (r.note) by[k].notes.push(r.note); if (r.irr) by[k].notes.push(t('irrLbl')); if (r.med) by[k].med=true; });
+    if (r.note || r.tags) by[k].notes.push(noteText(r)); if (r.irr) by[k].notes.push(t('irrLbl')); if (r.med) by[k].med=true; });
   return Object.keys(by).sort().reverse().map(function(k){
     var o=by[k], cell=function(arr){ if(!arr.length) return '<td class="muted">–</td>';
       var s=mean(arr.map(function(r){return r.s;})), d=mean(arr.map(function(r){return r.d;}));
@@ -645,6 +656,10 @@ function dailyRows(a){
     return '<tr><td>'+fDate(o.t)+'</td>'+cell(o.am)+cell(o.pm)+'<td class="small" style="text-align:left">'+esc(uniq.join('、'))+'</td></tr>';
   }).join('');
 }
+
+// Report/summary strings are built with Chinese punctuation; swap it out in English.
+var PUNCT = {'：':': ','（':' (','）':')','；':'; ','，':', ','、':', '};
+function P(s){ return lang==='zh' ? s : s.replace(/[：（）；，、]/g, function(c){ return PUNCT[c]; }); }
 
 function renderReport(){
   renderRangeChips();
@@ -656,7 +671,7 @@ function renderReport(){
   var h = '<div class="rep-head"><h2>'+esc(t('report'))+'</h2><div class="muted small">'+who.join(' · ')+'</div></div>'+
     '<div class="muted small">'+esc(t('period'))+'：'+esc(span)+(S.range? '（'+S.range+' '+esc(t('days'))+'）':'')+' · '+esc(t('targetLbl'))+' '+tg.s+'/'+tg.d+'</div>';
   if (p.meds) h += '<div class="small" style="margin-top:6px"><b>'+esc(t('medsLbl'))+'：</b>'+esc(p.meds).replace(/\n/g,'；')+'</div>';
-  if (!a.length){ $('reportCard').innerHTML = h + '<div class="empty">'+esc(t('noDataRange'))+'</div>'; return; }
+  if (!a.length){ $('reportCard').innerHTML = P(h) + '<div class="empty">'+esc(t('noDataRange'))+'</div>'; return; }
   h += '<div class="stats">'+
     '<div class="stat main"><div class="k">'+esc(t('avg'))+'（'+st.n+' '+esc(t('readings'))+'）</div><div class="v"'+hiCls(st.s,st.d)+'>'+bpTxt(st.s,st.d)+' <small>mmHg</small></div></div>'+
     '<div class="stat"><div class="k">☀ '+esc(t('amAvg'))+'</div><div class="v"'+hiCls(st.amS,st.amD)+'>'+bpTxt(st.amS,st.amD)+'</div><div class="k">'+st.amN+' '+esc(t('readings'))+'</div></div>'+
@@ -672,7 +687,7 @@ function renderReport(){
   h += '<h3 style="font-size:16px;margin:14px 0 4px">'+esc(t('dailyTable'))+'</h3>'+
     '<table class="days"><thead><tr><th>'+esc(t('date'))+'</th><th>☀ '+esc(t('amShort'))+'</th><th>☾ '+esc(t('pmShort'))+'</th><th style="text-align:left">'+esc(t('notesLbl'))+'</th></tr></thead><tbody>'+dailyRows(a)+'</tbody></table>'+
     '<p class="print-only small muted">'+esc(t('generated'))+' '+fDateY(Date.now())+' '+fTime(Date.now())+' · '+esc(t('appName'))+'</p>';
-  $('reportCard').innerHTML = h;
+  $('reportCard').innerHTML = P(h);
 }
 
 function summaryText(){
@@ -686,8 +701,8 @@ function summaryText(){
   L.push(t('overTarget')+'：'+st.overPct+'%');
   if (p.meds) L.push(t('medsLbl')+'：'+p.meds.replace(/\n/g,'；'));
   L.push('');
-  a.slice().reverse().forEach(function(r){ L.push(fDate(r.t)+' '+fTime(r.t)+'  '+r.s+'/'+r.d+(r.p?'  ♥'+r.p:'')+(r.note?'  '+r.note:'')); });
-  return L.join('\n');
+  a.slice().reverse().forEach(function(r){ L.push(fDate(r.t)+' '+fTime(r.t)+'  '+r.s+'/'+r.d+(r.p?'  ♥'+r.p:'')+((r.note||r.tags)?'  '+noteText(r):'')); });
+  return P(L.join('\n'));
 }
 $('shareTextBtn').addEventListener('click', function(){
   var txt = summaryText();
@@ -722,7 +737,7 @@ $('csvBtn').addEventListener('click', function(){
   var q=function(v){ v=String(v==null?'':v); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; };
   var rows=[['Date','Time','Session','SYS','DIA','Pulse','Medicine','Irregular','Note']];
   inRange().slice().reverse().forEach(function(r){ var d=new Date(r.t);
-    rows.push([d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()), fTime(r.t), isAM(r.t)?'AM':'PM', r.s, r.d, r.p||'', r.med?'Y':'', r.irr?'Y':'', r.note||'']); });
+    rows.push([d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()), fTime(r.t), isAM(r.t)?'AM':'PM', r.s, r.d, r.p||'', r.med?'Y':'', r.irr?'Y':'', noteText(r)]); });
   saveFile('BP-'+stamp()+'.csv', 'text/csv', '﻿'+rows.map(function(r){ return r.map(q).join(','); }).join('\r\n'));
 });
 
@@ -745,7 +760,7 @@ $('importFile').addEventListener('change', function(){
     try {
       var o=JSON.parse(rd.result); if (!o || !Array.isArray(o.readings)) throw 0;
       var have={}; S.readings.forEach(function(r){ have[r.id]=1; }); var n=0;
-      o.readings.forEach(function(r){ if (r && r.id && !have[r.id] && +r.t && +r.s && +r.d){ S.readings.push({id:String(r.id),t:+r.t,s:+r.s,d:+r.d,p:r.p?+r.p:undefined,med:!!r.med||undefined,irr:!!r.irr||undefined,note:r.note?String(r.note).slice(0,200):undefined}); n++; } });
+      o.readings.forEach(function(r){ if (r && r.id && !have[r.id] && +r.t && +r.s && +r.d){ S.readings.push({id:String(r.id),t:+r.t,s:+r.s,d:+r.d,p:r.p?+r.p:undefined,med:!!r.med||undefined,irr:!!r.irr||undefined,note:r.note?String(r.note).slice(0,200):undefined,tags:Array.isArray(r.tags)?r.tags.filter(function(i){ return i>=0 && i<6; }).map(Number):undefined}); n++; } });
       if (o.profile && !S.profile.name) S.profile = Object.assign(S.profile, o.profile);
       persist(); fillProfile(); renderAll(); toast(t('imported').replace('{n}', n), 3000);
     } catch(e){ toast(t('importErr'), 3000); }
