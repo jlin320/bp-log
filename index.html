@@ -137,6 +137,8 @@ nav.bottom button.on{color:var(--accent);font-weight:700}
 .toast.on{opacity:1}
 .empty{text-align:center;color:var(--muted);padding:24px 0}
 .print-only{display:none}
+.credit{text-align:center;font-size:14px;color:var(--muted);margin:4px 0 12px;letter-spacing:.5px}
+.credit::before{content:"♥ ";color:var(--accent)}
 /* doctor view: report only, large type */
 #docClose{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:30;padding:10px 16px;box-shadow:0 2px 10px rgba(0,0,0,.25)}
 body.doctor{padding-bottom:env(safe-area-inset-bottom)}
@@ -224,6 +226,7 @@ body.doctor table.days th{font-size:17px}
     <h2 data-i="howTitle">怎麼量才準？「722」原則</h2>
     <ol class="howto" id="howList"></ol>
   </div>
+  <p class="credit" data-i="madeBy">林醫院 製作</p>
 </section>
 
 <!-- ========== HISTORY ========== -->
@@ -305,7 +308,8 @@ body.doctor table.days th{font-size:17px}
   <div class="card">
     <button class="btn block danger" id="wipeBtn" type="button" data-i="wipe">刪除全部記錄</button>
   </div>
-  <p class="small muted" style="text-align:center" data-i="disclaimer">本工具僅供記錄，不能取代醫師診斷。</p>
+  <p class="small muted" style="text-align:center;margin-bottom:4px" data-i="disclaimer">本工具僅供記錄，不能取代醫師診斷。</p>
+  <p class="credit" data-i="madeBy">林醫院 製作</p>
 </section>
 </main>
 
@@ -364,6 +368,14 @@ var T = {
    crisis:'血壓非常高！請坐著休息 5 分鐘後再量。若仍 ≥180/110，或有胸痛、喘不過氣、劇烈頭痛、手腳無力、說話不清楚、視力模糊，請<b>立即就醫或撥 119</b>。'
   },
   secondHint:'這是本次第 2 遍，很好！', againHint:'建議 1 分鐘後再量第 2 遍。',
+  plv:{fast:'心跳偏快', vfast:'心跳很快', slow:'心跳偏慢', irr:'心律不整'},
+  pmsg:{
+   fast:'休息時心跳超過 100 次/分。請坐著休息 5 分鐘後再量一次。可能原因：發燒、脫水、緊張焦慮、咖啡或茶、貧血、甲狀腺問題，或心律不整（如心房顫動、陣發性上心室心搏過速）。休息後仍超過 100，或常常這樣，請盡快回診告訴醫師。',
+   vfast:'心跳每分鐘 130 次以上，可能是心律不整（如心房顫動、陣發性上心室心搏過速）、發燒或脫水。若有<b>胸痛、喘不過氣、頭暈、快昏倒、心悸停不下來</b>，請<b>立即就醫或撥 119</b>。沒有症狀的話，休息 5 分鐘後再量；仍在 120 以上請今天就醫。',
+   slow:'心跳低於 50 次/分。有些藥物（如乙型阻斷劑）會讓心跳變慢。若有頭暈、無力、喘、快昏倒，請盡快就醫；沒有症狀也請回診時告訴醫師。',
+   irr:'血壓計顯示心律不整，可能是心房顫動等問題。請多量幾次並記錄，回診時一定要給醫師看；若同時心悸、胸悶、頭暈或喘，請盡快就醫。'
+  },
+  fastN:'心跳>100', slowN:'心跳<50', madeBy:'林醫院 製作',
   report:'居家血壓報告', days:'天', all:'全部', avg:'平均血壓', amAvg:'早上平均', pmAvg:'晚上平均', pulseAvg:'平均心跳',
   readings:'筆', dayCount:'有量天數', overTarget:'超過目標', maxBp:'最高', minBp:'最低', targetLbl:'目標',
   date:'日期', dailyTable:'每日記錄（每格為該時段平均，右上小字為筆數）', chartTitle:'血壓趨勢', lgSys:'收縮壓', lgDia:'舒張壓', lgTarget:'目標',
@@ -405,6 +417,14 @@ var T = {
    crisis:'Very high! Rest 5 minutes and measure again. If still ≥180/110, or you have chest pain, shortness of breath, severe headache, weakness, trouble speaking or blurred vision, <b>get emergency care now (call 119)</b>.'
   },
   secondHint:'That is reading 2 of this session. Well done!', againHint:'Take a 2nd reading in 1 minute.',
+  plv:{fast:'Fast pulse', vfast:'Very fast pulse', slow:'Slow pulse', irr:'Irregular'},
+  pmsg:{
+   fast:'Resting pulse is over 100. Sit and rest 5 minutes, then measure again. Possible causes: fever, dehydration, stress or anxiety, coffee or tea, anaemia, thyroid problems, or an arrhythmia (such as atrial fibrillation or PSVT). If it stays over 100 after resting, or happens often, see your doctor soon.',
+   vfast:'Pulse is 130 or more. This may be an arrhythmia (such as atrial fibrillation or PSVT), fever or dehydration. If you have <b>chest pain, shortness of breath, dizziness, feel faint, or palpitations that will not stop</b>, <b>get emergency care now (call 119)</b>. With no symptoms, rest 5 minutes and measure again; if still 120 or more, see a doctor today.',
+   slow:'Pulse is under 50. Some medicines (such as beta-blockers) slow the heart. If you feel dizzy, weak, short of breath or faint, see a doctor soon; otherwise tell your doctor at the next visit.',
+   irr:'The monitor showed an irregular heartbeat, which may be atrial fibrillation or another rhythm problem. Measure a few more times and record them, and be sure to show your doctor. If you also have palpitations, chest discomfort, dizziness or breathlessness, see a doctor soon.'
+  },
+  fastN:'Pulse >100', slowN:'Pulse <50', madeBy:'Made by 林醫院',
   report:'Home Blood Pressure Report', days:'days', all:'All', avg:'Average BP', amAvg:'Morning avg', pmAvg:'Evening avg', pulseAvg:'Avg pulse',
   readings:'readings', dayCount:'Days measured', overTarget:'Above target', maxBp:'Highest', minBp:'Lowest', targetLbl:'Target',
   date:'Date', dailyTable:'Daily readings (session average; small number = readings)', chartTitle:'BP trend', lgSys:'Systolic', lgDia:'Diastolic', lgTarget:'Target',
@@ -567,12 +587,25 @@ $('saveBtn').addEventListener('click', function(){
 var lastResult = null;
 function showResult(r, second){
   lastResult = {r:r, second:second};
-  var l = level(r.s, r.d);
-  $('resultBox').innerHTML = '<div class="result lv-'+l+'">'+
+  var l = level(r.s, r.d), pc = pulseCard(r), urgent = pulseLevel(r.p)==='vfast';
+  $('resultBox').innerHTML = (urgent ? pc : '') + '<div class="result lv-'+l+'">'+
     '<div class="row" style="justify-content:space-between"><div class="big">'+r.s+'/'+r.d+(r.p?' <span style="font-size:22px;font-weight:600">♥ '+r.p+'</span>':'')+'</div>'+
     '<span class="lv lv-'+l+'" style="font-size:18px;background:transparent;border:2px solid currentColor">'+esc(t('lv')[l])+'</span></div>'+
     '<p style="margin:8px 0 0">'+t('msg')[l]+'</p>'+
-    '<p class="small" style="margin:6px 0 0;opacity:.85">'+(second ? t('secondHint') : t('againHint'))+'</p></div>';
+    '<p class="small" style="margin:6px 0 0;opacity:.85">'+(second ? t('secondHint') : t('againHint'))+'</p></div>'+
+    (urgent ? '' : pc);
+}
+// Resting pulse: >100 fast, >=130 very fast, <50 slow. Thresholds are for a seated, rested reading.
+function pulseLevel(p){ if (p==null) return null; if (p>=130) return 'vfast'; if (p>100) return 'fast'; if (p<50) return 'slow'; return null; }
+var PULSE_CLS = {vfast:'crisis', fast:'high', slow:'low', irr:'high'};
+function pulseCard(r){
+  var out = '', pl = pulseLevel(r.p);
+  var card = function(k, head){ return '<div class="result lv-'+PULSE_CLS[k]+'"><div class="row" style="justify-content:space-between">'+
+    '<div style="font-size:24px;font-weight:800">'+head+'</div><span class="lv lv-'+PULSE_CLS[k]+'" style="font-size:18px;background:transparent;border:2px solid currentColor">'+esc(t('plv')[k])+'</span></div>'+
+    '<p style="margin:8px 0 0">'+t('pmsg')[k]+'</p></div>'; };
+  if (pl) out += card(pl, '♥ '+r.p+' <span style="font-size:16px;font-weight:600">'+esc(t('bpm'))+'</span>');
+  if (r.irr) out += card('irr', '⚠');
+  return out;
 }
 
 // Quick-note chips (stored as indexes) in the current language, then the typed note.
@@ -584,7 +617,7 @@ function noteText(r){
 }
 function rowHTML(r, withDate){
   var meta = [];
-  if (r.p) meta.push('♥ '+r.p);
+  if (r.p) meta.push(pulseLevel(r.p) ? '<span class="lv lv-'+PULSE_CLS[pulseLevel(r.p)]+'">♥ '+r.p+' '+esc(t('plv')[pulseLevel(r.p)])+'</span>' : '♥ '+r.p);
   if (r.med) meta.push('💊');
   if (r.irr) meta.push('⚠ '+t('irrLbl'));
   if (r.note || r.tags) meta.push(esc(noteText(r)));
@@ -646,8 +679,19 @@ function computeStats(a){
     amS:mean(pick(am,'s')), amD:mean(pick(am,'d')), amN:am.length,
     pmS:mean(pick(pm,'s')), pmD:mean(pick(pm,'d')), pmN:pm.length,
     over:over, overPct: a.length? Math.round(over*100/a.length) : 0, max:max, min:min,
-    irr:a.filter(function(r){ return r.irr; }).length
+    irr:a.filter(function(r){ return r.irr; }).length,
+    fast:a.filter(function(r){ return r.p>100; }).length,
+    slow:a.filter(function(r){ return r.p!=null && r.p<50; }).length,
+    pMax:a.reduce(function(m,r){ return r.p>m ? r.p : m; }, 0)
   };
+}
+// Under the average pulse: how many readings were fast/slow, else just "bpm".
+function pulseSub(st, html){
+  var bits = [];
+  if (st.fast) bits.push(t('fastN')+' ×'+st.fast+'（'+t('maxBp')+' '+st.pMax+'）');
+  if (st.slow) bits.push(t('slowN')+' ×'+st.slow);
+  if (!bits.length) return html ? esc(t('bpm')) : t('bpm');
+  return html ? '<span class="hi">'+esc(P(bits.join(' · ')))+'</span>' : bits.join(' · ');
 }
 function bpTxt(s,d){ return s==null ? '–' : s+'/'+d; }
 function hiCls(s,d){ var tg=target(); return (s!=null && (s>=tg.s || d>=tg.d)) ? ' class="hi"' : ''; }
@@ -692,6 +736,7 @@ function chartSVG(a){
 function dailyData(a){
   var by = {};
   a.forEach(function(r){ var k=dayKey(r.t); (by[k]=by[k]||{t:r.t,am:[],pm:[],notes:[]})[isAM(r.t)?'am':'pm'].push(r);
+    var pl = pulseLevel(r.p); if (pl) by[k].notes.push(t('plv')[pl]+' '+r.p);
     if (r.note || r.tags) by[k].notes.push(noteText(r)); if (r.irr) by[k].notes.push(t('irrLbl')); });
   var avg = function(arr){ return arr.length ? {s:mean(arr.map(function(r){return r.s;})), d:mean(arr.map(function(r){return r.d;})), n:arr.length} : null; };
   return Object.keys(by).sort().reverse().map(function(k){
@@ -743,7 +788,7 @@ function reportCanvas(){
   var cells = [
     ['☀ '+t('amAvg'), bpTxt(st.amS,st.amD), st.amN+' '+t('readings'), isHi(st.amS,st.amD)],
     ['☾ '+t('pmAvg'), bpTxt(st.pmS,st.pmD), st.pmN+' '+t('readings'), isHi(st.pmS,st.pmD)],
-    [t('pulseAvg'), st.p==null?'–':String(st.p), t('bpm'), false],
+    [t('pulseAvg'), st.p==null?'–':String(st.p), pulseSub(st, false), false, !!(st.fast||st.slow)],
     [t('overTarget'), st.overPct+'%', st.over+'/'+st.n, false],
     [t('maxBp'), st.max.s+'/'+st.max.d, fDate(st.max.t)+' '+fTime(st.max.t), true],
     [t('dayCount'), String(st.days), st.irr? '⚠ '+t('irrLbl')+' ×'+st.irr : '', false]
@@ -754,7 +799,7 @@ function reportCanvas(){
     box(cx, cy, cw, ch, C.box);
     text(k[0], cx+cw/2, cy+40, 24, C.muted, false, 'center', cw-16);
     text(k[1], cx+cw/2, cy+98, 48, k[3]?C.hi:C.ink, true, 'center', cw-16);
-    text(k[2], cx+cw/2, cy+134, 22, C.muted, false, 'center', cw-16);
+    text(k[2], cx+cw/2, cy+134, 22, k[4]?C.hi:C.muted, !!k[4], 'center', cw-16);
   });
   y += 2*ch + 16 + 30;
   // chart
@@ -794,6 +839,7 @@ function reportCanvas(){
   });
   g.fillStyle = C.line; g.fillRect(M, y, W-2*M, 2);
   y += 56; text(t('generated')+' '+fDateY(Date.now())+' '+fTime(Date.now())+' · '+t('appName'), M, y, 22, C.muted);
+  text('♥ '+t('madeBy'), W-M, y, 24, C.hi, true, 'right');
   var out = document.createElement('canvas'); out.width = W; out.height = Math.ceil(y + 34);
   out.getContext('2d').drawImage(c, 0, 0);
   return out;
@@ -839,7 +885,7 @@ function renderReport(){
     '<div class="stat main"><div class="k">'+esc(t('avg'))+'（'+st.n+' '+esc(t('readings'))+'）</div><div class="v"'+hiCls(st.s,st.d)+'>'+bpTxt(st.s,st.d)+' <small>mmHg</small></div></div>'+
     '<div class="stat"><div class="k">☀ '+esc(t('amAvg'))+'</div><div class="v"'+hiCls(st.amS,st.amD)+'>'+bpTxt(st.amS,st.amD)+'</div><div class="k">'+st.amN+' '+esc(t('readings'))+'</div></div>'+
     '<div class="stat"><div class="k">☾ '+esc(t('pmAvg'))+'</div><div class="v"'+hiCls(st.pmS,st.pmD)+'>'+bpTxt(st.pmS,st.pmD)+'</div><div class="k">'+st.pmN+' '+esc(t('readings'))+'</div></div>'+
-    '<div class="stat"><div class="k">'+esc(t('pulseAvg'))+'</div><div class="v">'+(st.p==null?'–':st.p)+'</div><div class="k">'+esc(t('bpm'))+'</div></div>'+
+    '<div class="stat"><div class="k">'+esc(t('pulseAvg'))+'</div><div class="v">'+(st.p==null?'–':st.p)+'</div><div class="k">'+pulseSub(st, true)+'</div></div>'+
     '<div class="stat"><div class="k">'+esc(t('overTarget'))+'</div><div class="v">'+st.overPct+'<small>%</small></div><div class="k">'+st.over+'/'+st.n+'</div></div>'+
     '<div class="stat"><div class="k">'+esc(t('maxBp'))+'</div><div class="v hi" style="font-size:22px">'+st.max.s+'/'+st.max.d+'</div><div class="k">'+fDate(st.max.t)+' '+fTime(st.max.t)+'</div></div>'+
     '<div class="stat"><div class="k">'+esc(t('dayCount'))+'</div><div class="v">'+st.days+'</div><div class="k">'+(st.irr? '⚠ '+esc(t('irrLbl'))+' ×'+st.irr : '&nbsp;')+'</div></div>'+
@@ -849,7 +895,7 @@ function renderReport(){
     '<div class="legend"><span><i style="background:var(--sys)"></i>'+esc(t('lgSys'))+'</span><span><i style="background:var(--dia)"></i>'+esc(t('lgDia'))+'</span><span><i style="background:repeating-linear-gradient(90deg,var(--muted) 0 4px,transparent 4px 7px)"></i>'+esc(t('lgTarget'))+'</span></div>'+svg;
   h += '<h3 style="font-size:16px;margin:14px 0 4px">'+esc(t('dailyTable'))+'</h3>'+
     '<table class="days"><thead><tr><th>'+esc(t('date'))+'</th><th>☀ '+esc(t('amShort'))+'</th><th>☾ '+esc(t('pmShort'))+'</th><th style="text-align:left">'+esc(t('notesLbl'))+'</th></tr></thead><tbody>'+dailyRows(a)+'</tbody></table>'+
-    '<p class="print-only small muted">'+esc(t('generated'))+' '+fDateY(Date.now())+' '+fTime(Date.now())+' · '+esc(t('appName'))+'</p>';
+    '<p class="small muted" style="margin:10px 0 0;text-align:right">'+esc(t('generated'))+' '+fDateY(Date.now())+' '+fTime(Date.now())+' · '+esc(t('appName'))+' · '+esc(t('madeBy'))+'</p>';
   $('reportCard').innerHTML = P(h);
 }
 
@@ -859,12 +905,15 @@ function summaryText(){
   if (a.length) L.push(t('period')+'：'+fDateY(a[a.length-1].t)+' – '+fDateY(a[0].t)+'，'+st.n+' '+t('readings')+'，'+st.days+' '+t('days'));
   L.push(t('avg')+'：'+bpTxt(st.s,st.d)+'（'+t('targetLbl')+' '+tg.s+'/'+tg.d+'）');
   L.push(t('amAvg')+'：'+bpTxt(st.amS,st.amD)+'；'+t('pmAvg')+'：'+bpTxt(st.pmS,st.pmD));
-  if (st.p!=null) L.push(t('pulseAvg')+'：'+st.p);
+  if (st.p!=null) L.push(t('pulseAvg')+'：'+st.p+((st.fast||st.slow)?'（'+pulseSub(st,false)+'）':''));
+  if (st.irr) L.push('⚠ '+t('irrLbl')+' ×'+st.irr);
   if (st.max) L.push(t('maxBp')+'：'+st.max.s+'/'+st.max.d+'（'+fDate(st.max.t)+' '+fTime(st.max.t)+'）');
   L.push(t('overTarget')+'：'+st.overPct+'%');
   if (p.meds) L.push(t('medsLbl')+'：'+p.meds.replace(/\n/g,'；'));
   L.push('');
-  a.slice().reverse().forEach(function(r){ L.push(fDate(r.t)+' '+fTime(r.t)+'  '+r.s+'/'+r.d+(r.p?'  ♥'+r.p:'')+((r.note||r.tags)?'  '+noteText(r):'')); });
+  a.slice().reverse().forEach(function(r){ var pl = pulseLevel(r.p);
+    L.push(fDate(r.t)+' '+fTime(r.t)+'  '+r.s+'/'+r.d+(r.p?'  ♥'+r.p+(pl?' ('+t('plv')[pl]+')':''):'')+(r.irr?'  ⚠'+t('irrLbl'):'')+((r.note||r.tags)?'  '+noteText(r):'')); });
+  L.push(''); L.push('— '+t('appName')+' · '+t('madeBy'));
   return P(L.join('\n'));
 }
 $('shareTextBtn').addEventListener('click', function(){
