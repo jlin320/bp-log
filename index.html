@@ -278,7 +278,8 @@ body.doctor table.days th{font-size:17px}
     <h2 data-i="profile">我的資料（顯示在報告上）</h2>
     <div class="field"><label for="pfName" data-i="name">姓名</label><input type="text" id="pfName" autocomplete="name"></div>
     <div class="field" style="margin-top:10px"><label for="pfBirth" data-i="birth">出生年（西元）</label><input type="text" id="pfBirth" inputmode="numeric" maxlength="4"></div>
-    <div class="field" style="margin-top:10px"><label for="pfMeds" data-i="meds">目前血壓藥（名稱、劑量、時間）</label><textarea id="pfMeds"></textarea></div>
+    <label class="check" style="margin-top:10px"><input type="checkbox" id="pfOnMed"> <span data-i="onMed">我有固定吃降血壓藥</span></label>
+    <div class="field" style="margin-top:6px"><label for="pfMeds" data-i="meds">目前血壓藥（名稱、劑量、時間）</label><textarea id="pfMeds"></textarea></div>
     <div class="field" style="margin-top:10px">
       <label data-i="target">醫師給的居家目標血壓</label>
       <div class="row">
@@ -347,7 +348,7 @@ var T = {
   installIOS:['用 <b>Safari</b> 開啟這個網頁。','按下方的「分享」按鈕 <span style="font-size:20px">⎋</span>（方框加向上箭頭）。','選「<b>加入主畫面</b>」，再按「新增」。','之後從主畫面的「血壓記錄」圖示打開，沒有網路也能用。'],
   installAnd:['用 <b>Chrome</b> 開啟這個網頁。','按右上角「⋮」選單。','選「<b>安裝應用程式</b>」或「<b>加到主畫面</b>」。','之後從主畫面的「血壓記錄」圖示打開，沒有網路也能用。'],
   installed:'已安裝在主畫面 ✓',
-  profile:'我的資料（顯示在報告上）', name:'姓名', birth:'出生年（西元）', meds:'目前血壓藥（名稱、劑量、時間）',
+  profile:'我的資料（顯示在報告上）', name:'姓名', birth:'出生年（西元）', meds:'目前血壓藥（名稱、劑量、時間）', onMed:'我有固定吃降血壓藥',
   target:'醫師給的居家目標血壓', targetHint:'不確定就用 130/80，回診時請醫師幫您填。',
   backup:'備份（換手機前請先做）', privacy:'記錄只存在這支手機裡，不會上傳到任何地方。刪除這個 App 或清除瀏覽器資料，記錄就會不見。',
   exportBk:'匯出備份檔', importBk:'從備份檔還原', display:'顯示', wipe:'刪除全部記錄', disclaimer:'本工具僅供記錄，不能取代醫師診斷。',
@@ -376,6 +377,9 @@ var T = {
    irr:'血壓計顯示心律不整，可能是心房顫動等問題。請多量幾次並記錄，回診時一定要給醫師看；若同時心悸、胸悶、頭暈或喘，請盡快就醫。'
   },
   fastN:'心跳>100', slowN:'心跳<50', madeBy:'林醫院 製作',
+  holdHead:'先暫停降血壓藥',
+  holdMsg:'您有在吃降血壓藥，血壓偏低（低於 90/60）時：<b>先暫停下一次的降血壓藥</b>，坐下或躺下休息、多喝水，30 分鐘後再量一次，並<b>盡快聯絡醫師或回診</b>，請醫師調整藥量。其他藥物（例如心臟、心律、心衰竭用藥）請先問醫師，不要自行停藥。若收縮壓低於 80，或有快昏倒、意識不清、胸痛、喘不過氣，請<b>立即就醫或撥 119</b>。',
+  lowN:'血壓偏低',
   report:'居家血壓報告', days:'天', all:'全部', avg:'平均血壓', amAvg:'早上平均', pmAvg:'晚上平均', pulseAvg:'平均心跳',
   readings:'筆', dayCount:'有量天數', overTarget:'超過目標', maxBp:'最高', minBp:'最低', targetLbl:'目標',
   date:'日期', dailyTable:'每日記錄（每格為該時段平均，右上小字為筆數）', chartTitle:'血壓趨勢', lgSys:'收縮壓', lgDia:'舒張壓', lgTarget:'目標',
@@ -396,7 +400,7 @@ var T = {
   installIOS:['Open this page in <b>Safari</b>.','Tap the <b>Share</b> button (square with an up arrow).','Choose <b>Add to Home Screen</b>, then <b>Add</b>.','Open it from the "BP Log" icon. It works without internet.'],
   installAnd:['Open this page in <b>Chrome</b>.','Tap the <b>⋮</b> menu.','Choose <b>Install app</b> or <b>Add to Home screen</b>.','Open it from the "BP Log" icon. It works without internet.'],
   installed:'Installed on Home Screen ✓',
-  profile:'About me (shown on the report)', name:'Name', birth:'Year of birth', meds:'Current BP medicines (name, dose, time)',
+  profile:'About me (shown on the report)', name:'Name', birth:'Year of birth', meds:'Current BP medicines (name, dose, time)', onMed:'I take blood pressure medicine regularly',
   target:'Home BP target from your doctor', targetHint:'If unsure, use 130/80 and ask your doctor at the visit.',
   backup:'Backup (do this before changing phones)', privacy:'Readings are stored only on this phone and never uploaded. Deleting the app or clearing browser data erases them.',
   exportBk:'Export backup', importBk:'Restore backup', display:'Display', wipe:'Delete all readings', disclaimer:'For record keeping only. Not a substitute for medical advice.',
@@ -425,6 +429,9 @@ var T = {
    irr:'The monitor showed an irregular heartbeat, which may be atrial fibrillation or another rhythm problem. Measure a few more times and record them, and be sure to show your doctor. If you also have palpitations, chest discomfort, dizziness or breathlessness, see a doctor soon.'
   },
   fastN:'Pulse >100', slowN:'Pulse <50', madeBy:'Made by Lin Hospital',
+  holdHead:'Hold your BP medicine',
+  holdMsg:'You take blood pressure medicine and your BP is low (below 90/60). <b>Skip your next dose of blood pressure medicine</b>, sit or lie down, drink some water, and measure again in 30 minutes. <b>Contact your doctor soon</b> so the dose can be adjusted. Do not stop other medicines (such as heart, rhythm or heart-failure medicines) without asking your doctor. If systolic is below 80, or you feel faint, confused, or have chest pain or shortness of breath, <b>get emergency care now (call 119)</b>.',
+  lowN:'Low BP',
   report:'Home Blood Pressure Report', days:'days', all:'All', avg:'Average BP', amAvg:'Morning avg', pmAvg:'Evening avg', pulseAvg:'Avg pulse',
   readings:'readings', dayCount:'Days measured', overTarget:'Above target', maxBp:'Highest', minBp:'Lowest', targetLbl:'Target',
   date:'Date', dailyTable:'Daily readings (session average; small number = readings)', chartTitle:'BP trend', lgSys:'Systolic', lgDia:'Diastolic', lgTarget:'Target',
@@ -593,7 +600,17 @@ function showResult(r, second){
     '<span class="lv lv-'+l+'" style="font-size:18px;background:transparent;border:2px solid currentColor">'+esc(t('lv')[l])+'</span></div>'+
     '<p style="margin:8px 0 0">'+t('msg')[l]+'</p>'+
     '<p class="small" style="margin:6px 0 0;opacity:.85">'+(second ? t('secondHint') : t('againHint'))+'</p></div>'+
-    (urgent ? '' : pc);
+    holdCard(r, l) + (urgent ? '' : pc);
+}
+// Low BP (<90/60) in someone on regular antihypertensives: advise holding the next dose and calling the doctor.
+function onBpMeds(r){ var p = S.profile; return !!(p.onMed || (p.meds && p.meds.trim()) || r.med); }
+function holdCard(r, l){
+  if (l!=='low' || !onBpMeds(r)) return '';
+  var cls = r.s<80 ? 'crisis' : 'high';
+  return '<div class="result lv-'+cls+'"><div class="row" style="justify-content:space-between">'+
+    '<div style="font-size:24px;font-weight:800">💊 '+esc(t('holdHead'))+'</div>'+
+    '<span class="lv lv-'+cls+'" style="font-size:18px;background:transparent;border:2px solid currentColor">'+esc(t('lv').low)+'</span></div>'+
+    '<p style="margin:8px 0 0">'+t('holdMsg')+'</p></div>';
 }
 // Resting pulse: >100 fast, >=130 very fast, <50 slow. Thresholds are for a seated, rested reading.
 function pulseLevel(p){ if (p==null) return null; if (p>=130) return 'vfast'; if (p>100) return 'fast'; if (p<50) return 'slow'; return null; }
@@ -736,6 +753,7 @@ function chartSVG(a){
 function dailyData(a){
   var by = {};
   a.forEach(function(r){ var k=dayKey(r.t); (by[k]=by[k]||{t:r.t,am:[],pm:[],notes:[]})[isAM(r.t)?'am':'pm'].push(r);
+    if (level(r.s,r.d)==='low') by[k].notes.push(t('lowN')+' '+r.s+'/'+r.d);
     var pl = pulseLevel(r.p); if (pl) by[k].notes.push(t('plv')[pl]+' '+r.p);
     if (r.note || r.tags) by[k].notes.push(noteText(r)); if (r.irr) by[k].notes.push(t('irrLbl')); });
   var avg = function(arr){ return arr.length ? {s:mean(arr.map(function(r){return r.s;})), d:mean(arr.map(function(r){return r.d;})), n:arr.length} : null; };
@@ -965,7 +983,8 @@ function bindProfile(id, key, isNum){
   el.addEventListener('input', function(){ var v=el.value; if (isNum){ v=v.replace(/[^\d]/g,''); el.value=v; v = v? parseInt(v,10): (key==='ts'?130: key==='td'?80: ''); } S.profile[key]=v; persist(); });
   el.addEventListener('blur', function(){ fillProfile(); });
 }
-function fillProfile(){ var p=S.profile; $('pfName').value=p.name||''; $('pfBirth').value=p.birth||''; $('pfMeds').value=p.meds||''; $('pfTS').value=p.ts||130; $('pfTD').value=p.td||80; }
+$('pfOnMed').addEventListener('change', function(){ S.profile.onMed = this.checked; persist(); });
+function fillProfile(){ var p=S.profile; $('pfOnMed').checked=!!p.onMed; $('pfName').value=p.name||''; $('pfBirth').value=p.birth||''; $('pfMeds').value=p.meds||''; $('pfTS').value=p.ts||130; $('pfTD').value=p.td||80; }
 bindProfile('pfName','name'); bindProfile('pfBirth','birth'); bindProfile('pfMeds','meds'); bindProfile('pfTS','ts',true); bindProfile('pfTD','td',true);
 
 $('exportBtn').addEventListener('click', function(){
