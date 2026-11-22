@@ -1,5 +1,5 @@
 // Offline cache for the BP log. Bump VERSION after editing any cached file.
-var VERSION = 'bplog-v4';
+var VERSION = 'bplog-v5';
 var FILES = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', function (e) {
