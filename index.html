@@ -60,7 +60,10 @@ section.tab.on{display:block}
 /* entry */
 .bpgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
 .bpgrid > *{min-width:0}
-input[type=datetime-local]{min-width:0;max-width:100%}
+/* iOS gives date inputs an intrinsic width; strip native styling so it obeys width:100% */
+input[type=datetime-local]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;min-height:54px;text-align:left}
+input[type=datetime-local]::-webkit-date-and-time-value{text-align:left}
+@media (max-width:520px){ .field.f-time,.field.f-pulse{grid-column:1 / -1} }
 .field label{display:block;font-size:16px;font-weight:600;margin-bottom:4px}
 .field label .unit{font-weight:400;color:var(--muted);font-size:14px}
 .num{width:100%;font-size:40px;font-weight:700;text-align:center;padding:10px 6px;border-radius:12px;
@@ -134,6 +137,28 @@ nav.bottom button.on{color:var(--accent);font-weight:700}
 .toast.on{opacity:1}
 .empty{text-align:center;color:var(--muted);padding:24px 0}
 .print-only{display:none}
+/* doctor view: report only, large type */
+#docClose{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:30;padding:10px 16px;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+body.doctor{padding-bottom:env(safe-area-inset-bottom)}
+body.doctor header.top,body.doctor nav.bottom,body.doctor #tab-report > .no-print{display:none}
+body.doctor #docClose{display:inline-flex}
+body.doctor main{max-width:none;padding:calc(12px + env(safe-area-inset-top)) 16px 24px}
+body.doctor #reportCard{font-size:22px;border:0;padding:8px 4px}
+body.doctor #reportCard .small{font-size:19px}
+body.doctor #reportCard .rep-head h2{font-size:28px;padding-right:110px}
+body.doctor .stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+body.doctor .stat .k{font-size:17px}
+body.doctor .stat .v{font-size:36px}
+body.doctor .stat.main .v{font-size:56px}
+body.doctor table.days{font-size:22px}
+body.doctor table.days th{font-size:17px}
+/* report image overlay */
+.overlay{display:none;position:fixed;inset:0;z-index:40;background:var(--bg);overflow:auto;-webkit-overflow-scrolling:touch;
+  padding:calc(10px + env(safe-area-inset-top)) 12px calc(16px + env(safe-area-inset-bottom))}
+.overlay.on{display:block}
+.ov-bar{display:flex;gap:10px;justify-content:space-between;margin-bottom:8px}
+.ov-bar .btn{flex:1}
+#imgOut{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
 @media print{
   :root{--bg:#fff;--card:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent-soft:#f3f3f3}
   body{padding:0;font-size:12pt;background:#fff}
@@ -168,14 +193,13 @@ nav.bottom button.on{color:var(--accent);font-weight:700}
         <label for="inDia"><span data-i="dia">舒張壓 (低)</span> <span class="unit">mmHg</span></label>
         <input class="num" id="inDia" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" placeholder="80">
       </div>
-      <div class="field">
+      <div class="field f-pulse">
         <label for="inPulse"><span data-i="pulse">心跳</span> <span class="unit" data-i="bpm">次/分</span></label>
-        <input class="num" id="inPulse" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" placeholder="70" style="font-size:32px">
+        <input class="num" id="inPulse" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" placeholder="70" style="font-size:30px;padding:6px">
       </div>
-      <div class="field" style="align-self:end">
-        <label for="inTime" data-i="time">時間</label>
-        <input id="inTime" type="datetime-local" style="padding:14px 8px">
-        <div class="small muted" id="periodHint"></div>
+      <div class="field f-time" style="align-self:end">
+        <label for="inTime"><span data-i="time">時間</span> <span class="unit" id="periodHint"></span></label>
+        <input id="inTime" type="datetime-local" style="padding:12px">
       </div>
       <div class="field wide">
         <label class="check"><input type="checkbox" id="inMed"> <span data-i="medTaken">今天已吃血壓藥</span></label>
@@ -218,14 +242,26 @@ nav.bottom button.on{color:var(--accent);font-weight:700}
   </div>
   <div class="card" id="reportCard"></div>
   <div class="card no-print">
+    <button class="btn primary" id="fullBtn" type="button" data-i="bigView" style="margin-bottom:10px">放大給醫師看</button>
     <div class="btns">
+      <button class="btn" id="imgBtn" type="button" data-i="saveImg">存成圖片 / 列印</button>
       <button class="btn" id="shareTextBtn" type="button" data-i="shareText">傳送摘要 (LINE)</button>
       <button class="btn" id="printBtn" type="button" data-i="print">列印 / 存 PDF</button>
       <button class="btn" id="csvBtn" type="button" data-i="csv">匯出表格 (CSV)</button>
-      <button class="btn" id="fullBtn" type="button" data-i="bigView">放大給醫師看</button>
     </div>
   </div>
 </section>
+
+<!-- doctor view close button + report image overlay -->
+<button class="btn no-print" id="docClose" type="button" data-i="close">✕ 關閉</button>
+<div class="overlay no-print" id="imgOverlay" role="dialog" aria-modal="true">
+  <div class="ov-bar">
+    <button class="btn" id="imgShare" type="button" data-i="shareImg">分享 / 列印</button>
+    <button class="btn" id="imgClose" type="button" data-i="close">✕ 關閉</button>
+  </div>
+  <p class="small" style="margin:0 0 8px;text-align:center" data-i="imgHint">按「分享 / 列印」可選列印、儲存影像或傳 LINE；也可以長按圖片儲存。</p>
+  <img id="imgOut" alt="">
+</div>
 
 <!-- ========== SETTINGS ========== -->
 <section class="tab" id="tab-settings">
@@ -302,6 +338,7 @@ var T = {
   save:'儲存', recent:'最近記錄', howTitle:'怎麼量才準？「722」原則',
   how:['<b>7</b> 天：回診前連續量 7 天。','<b>2</b> 次：早上起床 1 小時內（上完廁所、吃藥和早餐前），晚上睡前各一次。','<b>2</b> 遍：每次坐著休息 5 分鐘，量 2 遍，中間隔 1 分鐘，兩遍都記下來。','量的時候：背靠椅背、雙腳著地，袖帶與心臟同高，不說話。量前 30 分鐘不抽菸、不喝咖啡、不運動。'],
   allRecords:'全部記錄', periodPick:'期間', shareText:'傳送摘要 (LINE)', print:'列印 / 存 PDF', csv:'匯出表格 (CSV)', bigView:'放大給醫師看',
+  saveImg:'存成圖片 / 列印', close:'✕ 關閉', shareImg:'分享 / 列印', imgHint:'按「分享 / 列印」可選列印、儲存影像或傳 LINE；也可以長按圖片儲存。',
   installTitle:'安裝到手機主畫面', installNow:'安裝到主畫面',
   installIOS:['用 <b>Safari</b> 開啟這個網頁。','按下方的「分享」按鈕 <span style="font-size:20px">⎋</span>（方框加向上箭頭）。','選「<b>加入主畫面</b>」，再按「新增」。','之後從主畫面的「血壓記錄」圖示打開，沒有網路也能用。'],
   installAnd:['用 <b>Chrome</b> 開啟這個網頁。','按右上角「⋮」選單。','選「<b>安裝應用程式</b>」或「<b>加到主畫面</b>」。','之後從主畫面的「血壓記錄」圖示打開，沒有網路也能用。'],
@@ -341,7 +378,8 @@ var T = {
   medTaken:'Took BP medicine today', irregular:'Monitor showed irregular heartbeat', note:'Note (optional)', notePh:'e.g. dizzy, slept badly',
   save:'Save', recent:'Recent readings', howTitle:'How to measure: the "722" rule',
   how:['<b>7</b> days in a row before your visit.','<b>2</b> times a day: within 1 hour of waking (after the toilet, before medicine and breakfast), and before bed.','<b>2</b> readings each time: sit and rest 5 minutes, measure twice 1 minute apart, record both.','Back supported, feet flat, cuff at heart level, no talking. No smoking, coffee or exercise for 30 minutes before.'],
-  allRecords:'All readings', periodPick:'Period', shareText:'Send summary', print:'Print / Save PDF', csv:'Export table (CSV)', bigView:'Full screen for doctor',
+  allRecords:'All readings', periodPick:'Period', shareText:'Send summary', print:'Print / Save PDF', csv:'Export table (CSV)', bigView:'Big view for doctor',
+  saveImg:'Save image / Print', close:'✕ Close', shareImg:'Share / Print', imgHint:'Tap "Share / Print" to print, save to Photos or send it. You can also long-press the picture to save it.',
   installTitle:'Add to your Home Screen', installNow:'Install',
   installIOS:['Open this page in <b>Safari</b>.','Tap the <b>Share</b> button (square with an up arrow).','Choose <b>Add to Home Screen</b>, then <b>Add</b>.','Open it from the "BP Log" icon. It works without internet.'],
   installAnd:['Open this page in <b>Chrome</b>.','Tap the <b>⋮</b> menu.','Choose <b>Install app</b> or <b>Add to Home screen</b>.','Open it from the "BP Log" icon. It works without internet.'],
@@ -614,25 +652,31 @@ function computeStats(a){
 function bpTxt(s,d){ return s==null ? '–' : s+'/'+d; }
 function hiCls(s,d){ var tg=target(); return (s!=null && (s>=tg.s || d>=tg.d)) ? ' class="hi"' : ''; }
 
-function chartSVG(a){
-  if (a.length<2) return '';
-  var tg = target(), W=360, H=220, L=30, R=6, Tp=10, B=24;
+// Shared chart geometry for the on-screen SVG and the saved image.
+function chartModel(a, W, H, L, R, Tp, B){
+  var tg = target();
   var pts = a.slice().sort(function(x,y){ return x.t-y.t; });
   var t0 = pts[0].t, t1 = pts[pts.length-1].t;
   if (S.range){ var st=new Date(); st.setHours(0,0,0,0); t0 = Math.min(t0, st.getTime()-(S.range-1)*86400000); var en=new Date(); en.setHours(23,59,59,0); t1=Math.max(t1,en.getTime()); }
   if (t1-t0 < 3600000) t1 = t0 + 3600000;
   var lo=200, hi=0; pts.forEach(function(r){ lo=Math.min(lo,r.d); hi=Math.max(hi,r.s); });
   lo = Math.floor(Math.min(lo, tg.d-10, 60)/20)*20; hi = Math.ceil(Math.max(hi, tg.s+10, 160)/20)*20;
-  var x=function(ms){ return L+(ms-t0)/(t1-t0)*(W-L-R); }, y=function(v){ return Tp+(hi-v)/(hi-lo)*(H-Tp-B); };
-  var g='';
-  for (var v=lo; v<=hi; v+=20){ g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="var(--line)" stroke-width="1"/><text x="'+(L-6)+'" y="'+(y(v)+4)+'" text-anchor="end" font-size="12" fill="var(--muted)">'+v+'</text>'; }
-  // date ticks
+  var m = {pts:pts, lo:lo, hi:hi, tg:tg, ticks:[],
+    x:function(ms){ return L+(ms-t0)/(t1-t0)*(W-L-R); }, y:function(v){ return Tp+(hi-v)/(hi-lo)*(H-Tp-B); }};
   var span = (t1-t0)/86400000, step = span<=8?1: span<=16?2: span<=35?7: span<=100?14:30;
   var d0 = new Date(t0); d0.setHours(0,0,0,0);
   for (var dt=d0.getTime(), i=0; dt<=t1; dt+=86400000, i++){
     if (dt<t0 || i%step) continue;
-    var dd=new Date(dt); g+='<text x="'+x(dt+43200000)+'" y="'+(H-10)+'" text-anchor="middle" font-size="12" fill="var(--muted)">'+(dd.getMonth()+1)+'/'+dd.getDate()+'</text>';
+    var dd=new Date(dt); m.ticks.push({x:m.x(dt+43200000), label:(dd.getMonth()+1)+'/'+dd.getDate()});
   }
+  return m;
+}
+function chartSVG(a){
+  if (a.length<2) return '';
+  var W=360, H=220, L=30, R=6, B=24, m=chartModel(a,W,H,L,R,10,B), tg=m.tg, pts=m.pts, x=m.x, y=m.y, lo=m.lo, hi=m.hi;
+  var g='';
+  for (var v=lo; v<=hi; v+=20){ g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="var(--line)" stroke-width="1"/><text x="'+(L-6)+'" y="'+(y(v)+4)+'" text-anchor="end" font-size="12" fill="var(--muted)">'+v+'</text>'; }
+  m.ticks.forEach(function(k){ g+='<text x="'+k.x+'" y="'+(H-10)+'" text-anchor="middle" font-size="12" fill="var(--muted)">'+k.label+'</text>'; });
   g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(tg.s)+'" y2="'+y(tg.s)+'" stroke="var(--sys)" stroke-dasharray="5 4" stroke-width="1.5" opacity=".7"/>';
   g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(tg.d)+'" y2="'+y(tg.d)+'" stroke="var(--dia)" stroke-dasharray="5 4" stroke-width="1.5" opacity=".7"/>';
   var line=function(k,col){
@@ -644,18 +688,137 @@ function chartSVG(a){
   return '<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(t('chartTitle'))+'">'+g+'</svg>';
 }
 
-function dailyRows(a){
+// One entry per day, newest first: {t, am:{s,d,n}|null, pm:..., notes}
+function dailyData(a){
   var by = {};
-  a.forEach(function(r){ var k=dayKey(r.t); (by[k]=by[k]||{t:r.t,am:[],pm:[],notes:[],med:false})[isAM(r.t)?'am':'pm'].push(r);
-    if (r.note || r.tags) by[k].notes.push(noteText(r)); if (r.irr) by[k].notes.push(t('irrLbl')); if (r.med) by[k].med=true; });
+  a.forEach(function(r){ var k=dayKey(r.t); (by[k]=by[k]||{t:r.t,am:[],pm:[],notes:[]})[isAM(r.t)?'am':'pm'].push(r);
+    if (r.note || r.tags) by[k].notes.push(noteText(r)); if (r.irr) by[k].notes.push(t('irrLbl')); });
+  var avg = function(arr){ return arr.length ? {s:mean(arr.map(function(r){return r.s;})), d:mean(arr.map(function(r){return r.d;})), n:arr.length} : null; };
   return Object.keys(by).sort().reverse().map(function(k){
-    var o=by[k], cell=function(arr){ if(!arr.length) return '<td class="muted">–</td>';
-      var s=mean(arr.map(function(r){return r.s;})), d=mean(arr.map(function(r){return r.d;}));
-      return '<td'+hiCls(s,d)+' style="white-space:nowrap">'+s+'/'+d+(arr.length>1?'<sup class="muted" style="font-size:11px;font-weight:400">'+arr.length+'</sup>':'')+'</td>'; };
-    var uniq = o.notes.filter(function(v,i,s){ return s.indexOf(v)===i; });
-    return '<tr><td>'+fDate(o.t)+'</td>'+cell(o.am)+cell(o.pm)+'<td class="small" style="text-align:left">'+esc(uniq.join('、'))+'</td></tr>';
+    var o = by[k];
+    return {t:o.t, am:avg(o.am), pm:avg(o.pm), notes:o.notes.filter(function(v,i,s){ return s.indexOf(v)===i; }).join('、')};
+  });
+}
+function dailyRows(a){
+  var cell = function(c){ if (!c) return '<td class="muted">–</td>';
+    return '<td'+hiCls(c.s,c.d)+' style="white-space:nowrap">'+c.s+'/'+c.d+(c.n>1?'<sup class="muted" style="font-size:11px;font-weight:400">'+c.n+'</sup>':'')+'</td>'; };
+  return dailyData(a).map(function(o){
+    return '<tr><td>'+fDate(o.t)+'</td>'+cell(o.am)+cell(o.pm)+'<td class="small" style="text-align:left">'+esc(o.notes)+'</td></tr>';
   }).join('');
 }
+
+/* ---- report as a PNG (iPhone home-screen apps cannot window.print) ---- */
+function reportCanvas(){
+  var a = inRange(); if (!a.length) return null;
+  var st = computeStats(a), tg = target(), p = S.profile, days = dailyData(a);
+  var C = {ink:'#1d1b19', muted:'#6b6560', line:'#e4dfd9', soft:'#fdecea', box:'#f6f4f1', sys:'#c0392b', dia:'#2563a8', hi:'#b42318'};
+  var FONT = '-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif';
+  var W = 1080, M = 56, rowH = 62, chartH = a.length>1 ? 440 : 0;
+  var H = 1600 + chartH + days.length*rowH;   // generous; cropped to the content at the end
+  var c = document.createElement('canvas'); c.width = W; c.height = H;
+  var g = c.getContext('2d');
+  var font = function(px, bold){ g.font = (bold?'700 ':'400 ')+px+'px '+FONT; };
+  var text = function(s, x, y, px, col, bold, align, maxW){
+    font(px, bold); g.fillStyle = col; g.textAlign = align||'left'; s = P(String(s));
+    if (maxW) while (s.length>1 && g.measureText(s).width>maxW) s = s.slice(0,-2)+'…';
+    g.fillText(s, x, y);
+  };
+  var isHi = function(s,d){ return s!=null && (s>=tg.s || d>=tg.d); };
+  var box = function(x,y,w,h,col){ g.fillStyle=col; g.beginPath(); if (g.roundRect) g.roundRect(x,y,w,h,18); else g.rect(x,y,w,h); g.fill(); };
+  g.fillStyle = '#fff'; g.fillRect(0,0,W,H);
+  var y = 90;
+  text(t('report'), M, y, 50, C.hi, true);
+  var who = []; if (p.name) who.push(p.name); if (p.birth) who.push(t('ageLbl')+' '+p.birth);
+  if (who.length) text(who.join(' · '), W-M, y, 32, C.ink, true, 'right');
+  y += 56;
+  text(t('period')+'：'+fDateY(a[a.length-1].t)+' – '+fDateY(a[0].t)+(S.range?'（'+S.range+' '+t('days')+'）':'')+'   '+t('targetLbl')+' '+tg.s+'/'+tg.d+' mmHg', M, y, 28, C.muted);
+  if (p.meds){ y += 48; text(t('medsLbl')+'：'+p.meds.replace(/\n/g,'；'), M, y, 28, C.ink, false, 'left', W-2*M); }
+  // main average
+  y += 34; box(M, y, W-2*M, 170, C.soft);
+  text(t('avg')+'（'+st.n+' '+t('readings')+'）', W/2, y+50, 28, C.muted, false, 'center');
+  text(bpTxt(st.s,st.d), W/2-30, y+138, 92, isHi(st.s,st.d)?C.hi:C.ink, true, 'center');
+  text('mmHg', W/2+170, y+138, 28, C.muted, false, 'left');
+  y += 190;
+  // small stats (3 per row x 2)
+  var cells = [
+    ['☀ '+t('amAvg'), bpTxt(st.amS,st.amD), st.amN+' '+t('readings'), isHi(st.amS,st.amD)],
+    ['☾ '+t('pmAvg'), bpTxt(st.pmS,st.pmD), st.pmN+' '+t('readings'), isHi(st.pmS,st.pmD)],
+    [t('pulseAvg'), st.p==null?'–':String(st.p), t('bpm'), false],
+    [t('overTarget'), st.overPct+'%', st.over+'/'+st.n, false],
+    [t('maxBp'), st.max.s+'/'+st.max.d, fDate(st.max.t)+' '+fTime(st.max.t), true],
+    [t('dayCount'), String(st.days), st.irr? '⚠ '+t('irrLbl')+' ×'+st.irr : '', false]
+  ];
+  var cw = (W-2*M-2*20)/3, ch = 150;
+  cells.forEach(function(k, i){
+    var cx = M + (i%3)*(cw+20), cy = y + Math.floor(i/3)*(ch+16);
+    box(cx, cy, cw, ch, C.box);
+    text(k[0], cx+cw/2, cy+40, 24, C.muted, false, 'center', cw-16);
+    text(k[1], cx+cw/2, cy+98, 48, k[3]?C.hi:C.ink, true, 'center', cw-16);
+    text(k[2], cx+cw/2, cy+134, 22, C.muted, false, 'center', cw-16);
+  });
+  y += 2*ch + 16 + 30;
+  // chart
+  if (chartH){
+    y += 30; text(t('chartTitle'), M, y, 32, C.ink, true);
+    text('— '+t('lgSys'), W-M-260, y, 24, C.sys, true, 'right'); text('— '+t('lgDia'), W-M-110, y, 24, C.dia, true, 'right'); text('- - '+t('lgTarget'), W-M, y, 24, C.muted, false, 'right');
+    var top = y + 20, L = M+50, R = M, m = chartModel(a, W, chartH, L, R, 10, 40);
+    g.save(); g.translate(0, top);
+    g.lineWidth = 1; g.strokeStyle = C.line;
+    for (var v=m.lo; v<=m.hi; v+=20){ g.beginPath(); g.moveTo(L, m.y(v)); g.lineTo(W-R, m.y(v)); g.stroke(); text(v, L-10, m.y(v)+8, 22, C.muted, false, 'right'); }
+    m.ticks.forEach(function(k){ text(k.label, k.x, chartH-8, 22, C.muted, false, 'center'); });
+    g.setLineDash([10,8]); g.lineWidth = 2;
+    [[tg.s,C.sys],[tg.d,C.dia]].forEach(function(q){ g.strokeStyle=q[1]; g.globalAlpha=.7; g.beginPath(); g.moveTo(L,m.y(q[0])); g.lineTo(W-R,m.y(q[0])); g.stroke(); });
+    g.setLineDash([]);
+    [['s',C.sys],['d',C.dia]].forEach(function(q){
+      g.strokeStyle=q[1]; g.fillStyle=q[1]; g.lineWidth=3; g.globalAlpha=.55; g.beginPath();
+      m.pts.forEach(function(r,i){ var px=m.x(r.t), py=m.y(r[q[0]]); if(i) g.lineTo(px,py); else g.moveTo(px,py); }); g.stroke();
+      g.globalAlpha=1; m.pts.forEach(function(r){ g.beginPath(); g.arc(m.x(r.t), m.y(r[q[0]]), 6, 0, 7); g.fill(); });
+    });
+    g.restore(); y = top + chartH + 30;
+  }
+  // daily table
+  y += 40; text(t('dailyTable'), M, y, 30, C.ink, true, 'left', W-2*M);
+  var colX = [M, M+260, M+480, M+700];
+  y += 50;
+  [t('date'), '☀ '+t('amShort'), '☾ '+t('pmShort'), t('notesLbl')].forEach(function(h,i){ text(h, colX[i], y, 24, C.muted, true); });
+  y += 16;
+  var cellTxt = function(c){ return c ? c.s+'/'+c.d+(c.n>1?' ×'+c.n:'') : '–'; };
+  days.forEach(function(o){
+    g.fillStyle = C.line; g.fillRect(M, y, W-2*M, 2);
+    var by = y + 44;
+    text(fDate(o.t), colX[0], by, 28, C.ink);
+    text(cellTxt(o.am), colX[1], by, 30, o.am && isHi(o.am.s,o.am.d)?C.hi:C.ink, true);
+    text(cellTxt(o.pm), colX[2], by, 30, o.pm && isHi(o.pm.s,o.pm.d)?C.hi:C.ink, true);
+    text(o.notes, colX[3], by, 24, C.muted, false, 'left', W-M-colX[3]);
+    y += rowH;
+  });
+  g.fillStyle = C.line; g.fillRect(M, y, W-2*M, 2);
+  y += 56; text(t('generated')+' '+fDateY(Date.now())+' '+fTime(Date.now())+' · '+t('appName'), M, y, 22, C.muted);
+  var out = document.createElement('canvas'); out.width = W; out.height = Math.ceil(y + 34);
+  out.getContext('2d').drawImage(c, 0, 0);
+  return out;
+}
+var imgFile = null;
+function openReportImage(){
+  var c = reportCanvas(); if (!c){ toast(t('noDataRange')); return; }
+  var name = 'BP-report-'+stamp()+'.png';
+  $('imgOut').src = c.toDataURL('image/png');
+  imgFile = null;
+  c.toBlob(function(b){ try { imgFile = new File([b], name, {type:'image/png'}); } catch(e){ imgFile = b; } }, 'image/png');
+  $('imgOverlay').classList.add('on'); $('imgOverlay').scrollTop = 0;
+}
+$('imgBtn').addEventListener('click', openReportImage);
+$('imgClose').addEventListener('click', function(){ $('imgOverlay').classList.remove('on'); });
+$('imgShare').addEventListener('click', function(){
+  if (!imgFile) return;
+  var name = 'BP-report-'+stamp()+'.png';
+  if (imgFile instanceof File && navigator.canShare && navigator.canShare({files:[imgFile]})){
+    navigator.share({files:[imgFile], title:t('report')}).catch(function(){});
+    return;
+  }
+  var a = document.createElement('a'); a.href = $('imgOut').src; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); toast(t('exported'));
+});
 
 // Report/summary strings are built with Chinese punctuation; swap it out in English.
 var PUNCT = {'：':': ','（':' (','）':')','；':'; ','，':', ','、':', '};
@@ -715,12 +878,18 @@ function copyText(txt){
 }
 function fallbackCopy(txt){ var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); toast(t('copied')); }catch(e){} document.body.removeChild(ta); }
 $('printBtn').addEventListener('click', function(){ renderReport(); window.print(); });
-$('fullBtn').addEventListener('click', function(){
+// Big view: report only, large type. Real fullscreen where the browser allows it (Android); iPhone just gets the overlay.
+function setDoctor(on){
+  document.body.classList.toggle('doctor', on);
   var el = document.documentElement;
-  if (el.requestFullscreen) el.requestFullscreen().catch(function(){});
-  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-  $('reportCard').scrollIntoView({behavior:'smooth'});
-});
+  if (on){
+    try { if (el.requestFullscreen) el.requestFullscreen().catch(function(){}); } catch(e){}
+  } else if (document.fullscreenElement && document.exitFullscreen){ document.exitFullscreen().catch(function(){}); }
+  window.scrollTo(0,0);
+}
+$('fullBtn').addEventListener('click', function(){ setDoctor(true); });
+$('docClose').addEventListener('click', function(){ setDoctor(false); });
+document.addEventListener('fullscreenchange', function(){ if (!document.fullscreenElement && document.body.classList.contains('doctor')) setDoctor(false); });
 
 function saveFile(name, mime, content){
   var blob = new Blob([content], {type:mime});
@@ -784,6 +953,8 @@ var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').
 var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
 window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferredPrompt=e; renderInstall(); });
 $('installBtn').addEventListener('click', function(){ if(!deferredPrompt) return; deferredPrompt.prompt(); deferredPrompt.userChoice.then(function(){ deferredPrompt=null; renderInstall(); }); });
+// Home-screen apps on iPhone ignore window.print(); offer the image route only there.
+if (isIOS && standalone) $('printBtn').style.display = 'none';
 function renderInstall(){
   if (standalone){ $('installCard').innerHTML = '<div style="color:var(--ok);font-weight:700">'+esc(t('installed'))+'</div>'; return; }
   $('installBtn').style.display = deferredPrompt ? '' : 'none';
