@@ -137,6 +137,22 @@ nav.bottom button.on{color:var(--accent);font-weight:700}
 .toast.on{opacity:1}
 .empty{text-align:center;color:var(--muted);padding:24px 0}
 .print-only{display:none}
+.callout{background:var(--warn-bg);color:var(--warn);border-radius:12px;padding:10px 12px;font-weight:700;margin:0 0 10px}
+.notice{border-radius:var(--radius);padding:14px 16px;margin:0 0 14px;border:2px solid var(--warn);background:var(--warn-bg)}
+.notice h3{margin:0 0 6px;font-size:18px;color:var(--warn)}
+.notice p{margin:0 0 8px}
+.notice .row .btn{flex:1;padding:10px 12px;font-size:16px}
+.ask{border:2px solid var(--vhigh);background:var(--vhigh-bg)}
+.ask h3{color:var(--vhigh)}
+.ask ul{margin:4px 0 10px;padding-left:1.2em}
+.ask .btn{flex:1;font-size:20px}
+.ask .yes{background:var(--vhigh);border-color:var(--vhigh);color:#fff}
+a.btn{text-decoration:none}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;margin:8px 0 4px}
+.week .d{font-size:13px;color:var(--muted)}
+.week .m{font-size:18px;line-height:1.3;color:var(--line)}
+.week .m.on{color:var(--accent)}
+.wavg{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
 .credit{text-align:center;font-size:14px;color:var(--muted);margin:4px 0 12px;letter-spacing:.5px}
 .credit::before{content:"♥ ";color:var(--accent)}
 /* doctor view: report only, large type */
@@ -184,6 +200,7 @@ body.doctor table.days th{font-size:17px}
 <!-- ========== ADD ========== -->
 <section class="tab on" id="tab-add">
   <div id="resultBox"></div>
+  <div id="notices"></div>
 
   <div class="card">
     <div class="bpgrid">
@@ -217,6 +234,8 @@ body.doctor table.days th{font-size:17px}
     <button class="btn primary" id="saveBtn" type="button" data-i="save">儲存</button>
   </div>
 
+  <div class="card" id="weekCard"></div>
+
   <div class="card">
     <h2 data-i="recent">最近記錄</h2>
     <ul class="rlist" id="recentList"></ul>
@@ -242,6 +261,7 @@ body.doctor table.days th{font-size:17px}
   <div class="card no-print">
     <div class="small muted" data-i="periodPick">期間</div>
     <div class="chips" id="rangeChips" style="margin-top:6px"></div>
+    <label class="check small" style="margin-top:6px"><input type="checkbox" id="skipDay1"> <span data-i="skipDay1">平均不計第一天（第一天常偏高）</span></label>
   </div>
   <div class="card" id="reportCard"></div>
   <div class="card no-print">
@@ -380,6 +400,28 @@ var T = {
   holdHead:'先暫停降血壓藥',
   holdMsg:'您有在吃降血壓藥，血壓偏低（低於 90/60）時：<b>先暫停下一次的降血壓藥</b>，坐下或躺下休息、多喝水，30 分鐘後再量一次，並<b>盡快聯絡醫師或回診</b>，請醫師調整藥量。其他藥物（例如心臟、心律、心衰竭用藥）請先問醫師，不要自行停藥。若收縮壓低於 80，或有快昏倒、意識不清、胸痛、喘不過氣，請<b>立即就醫或撥 119</b>。',
   lowN:'血壓偏低',
+  meAm:'早上收縮壓平均比晚上高 {n} mmHg（晨間血壓偏高），可與醫師討論服藥時間。',
+  mePm:'晚上收縮壓平均比早上高 {n} mmHg，可與醫師討論服藥時間。',
+  skipDay1:'平均不計第一天（第一天常偏高）', day1Note:'平均和趨勢圖不含第一天（{d}）的記錄。',
+  installWarnHead:'請先「加入主畫面」再開始記錄',
+  installWarn:'在 iPhone 上，Safari 裡的記錄和主畫面 App 的記錄是<b>分開的</b>。請從主畫面的「血壓記錄」圖示開啟，記錄才不會不見。',
+  installWarnMoved:'已經在 Safari 記了一些？先到「我的」按「匯出備份檔」，再到主畫面 App 裡「從備份檔還原」。',
+  seeSteps:'看安裝步驟', gotIt:'知道了',
+  backupHead:'該備份了', backupMsg:'上次備份：{x}。換手機、刪除 App 或清除瀏覽器資料時，記錄會不見。',
+  never:'從未備份', daysAgo:'{n} 天前', backupNow:'立即備份', later:'下次再說',
+  weekHead:'最近 7 天', weekAvg:'平均（{n} 筆，{d} 天）',
+  weekAbove:'平均高於目標 {tg}。請繼續照 722 記錄，回診時給醫師看；如果連續兩週都偏高，請提早回診。',
+  weekOk:'平均在目標 {tg} 以內，請繼續保持。',
+  weekLowMed:'平均偏低（低於 90/60）。您有在吃降血壓藥，請盡快聯絡醫師調整藥量。',
+  weekLow:'平均偏低（低於 90/60）。如果常頭暈，請告訴醫師。',
+  weekFew:'再多量幾天，平均才準（至少 3 天、6 筆）。722：連續 7 天，早晚各量 2 遍。',
+  weekProg:'722 進度：{d}/7 天早晚都有量',
+  askHead:'現在有沒有下面任何一種情況？',
+  askList:['胸痛或胸悶','喘不過氣','劇烈頭痛','手腳無力或發麻、嘴歪','說話不清楚','視力模糊','快昏倒或意識不清','心悸停不下來'],
+  askYes:'有', askNo:'沒有',
+  emHead:'請立即就醫', emMsg:'請馬上撥 <b>119</b> 或請家人送急診，不要自己開車。把這個畫面給醫護人員看。', call119:'📞 撥打 119',
+  noSymMsg:'好的。請坐著休息 5 分鐘後再量一次，並照下面的建議做。如果出現上面任何一種情況，請立即撥 119。',
+  symLbl:'有症狀',
   report:'居家血壓報告', days:'天', all:'全部', avg:'平均血壓', amAvg:'早上平均', pmAvg:'晚上平均', pulseAvg:'平均心跳',
   readings:'筆', dayCount:'有量天數', overTarget:'超過目標', maxBp:'最高', minBp:'最低', targetLbl:'目標',
   date:'日期', dailyTable:'每日記錄（每格為該時段平均，右上小字為筆數）', chartTitle:'血壓趨勢', lgSys:'收縮壓', lgDia:'舒張壓', lgTarget:'目標',
@@ -432,6 +474,28 @@ var T = {
   holdHead:'Hold your BP medicine',
   holdMsg:'You take blood pressure medicine and your BP is low (below 90/60). <b>Skip your next dose of blood pressure medicine</b>, sit or lie down, drink some water, and measure again in 30 minutes. <b>Contact your doctor soon</b> so the dose can be adjusted. Do not stop other medicines (such as heart, rhythm or heart-failure medicines) without asking your doctor. If systolic is below 80, or you feel faint, confused, or have chest pain or shortness of breath, <b>get emergency care now (call 119)</b>.',
   lowN:'Low BP',
+  meAm:'Morning systolic averages {n} mmHg higher than evening (morning hypertension). Discuss medicine timing with your doctor.',
+  mePm:'Evening systolic averages {n} mmHg higher than morning. Discuss medicine timing with your doctor.',
+  skipDay1:'Leave out day 1 from averages (day 1 often reads high)', day1Note:'Averages and chart leave out day 1 ({d}).',
+  installWarnHead:'Add to Home Screen before you start',
+  installWarn:'On iPhone, readings saved in Safari and in the Home Screen app are <b>kept separately</b>. Open the app from the "血壓記錄" icon on your Home Screen so your readings are not lost.',
+  installWarnMoved:'Already saved some readings in Safari? Go to "Me", tap "Export backup", then "Restore backup" inside the Home Screen app.',
+  seeSteps:'Show me how', gotIt:'Got it',
+  backupHead:'Time to back up', backupMsg:'Last backup: {x}. Readings are lost if you change phones, delete the app or clear browser data.',
+  never:'never', daysAgo:'{n} days ago', backupNow:'Back up now', later:'Later',
+  weekHead:'Last 7 days', weekAvg:'Average ({n} readings, {d} days)',
+  weekAbove:'Average is above your target {tg}. Keep recording with the 722 rule and show your doctor; if it stays high two weeks in a row, see your doctor sooner.',
+  weekOk:'Average is within your target {tg}. Keep it up.',
+  weekLowMed:'Average is low (below 90/60). You take BP medicine, so contact your doctor soon to adjust the dose.',
+  weekLow:'Average is low (below 90/60). Tell your doctor if you often feel dizzy.',
+  weekFew:'Measure a few more days for a reliable average (at least 3 days, 6 readings). 722: 7 days, morning and evening, 2 readings each.',
+  weekProg:'722 progress: {d}/7 days with morning and evening',
+  askHead:'Do you have any of these right now?',
+  askList:['Chest pain or tightness','Shortness of breath','Severe headache','Weak or numb arm/leg, face drooping','Trouble speaking','Blurred vision','Feeling faint or confused','Palpitations that will not stop'],
+  askYes:'Yes', askNo:'No',
+  emHead:'Get emergency care now', emMsg:'Call <b>119</b> now or have someone take you to the emergency room. Do not drive yourself. Show this screen to the staff.', call119:'📞 Call 119',
+  noSymMsg:'OK. Sit and rest 5 minutes, then measure again, and follow the advice below. If any of those symptoms start, call 119 right away.',
+  symLbl:'Symptoms',
   report:'Home Blood Pressure Report', days:'days', all:'All', avg:'Average BP', amAvg:'Morning avg', pmAvg:'Evening avg', pulseAvg:'Avg pulse',
   readings:'readings', dayCount:'Days measured', overTarget:'Above target', maxBp:'Highest', minBp:'Lowest', targetLbl:'Target',
   date:'Date', dailyTable:'Daily readings (session average; small number = readings)', chartTitle:'BP trend', lgSys:'Systolic', lgDia:'Diastolic', lgTarget:'Target',
@@ -587,7 +651,7 @@ $('saveBtn').addEventListener('click', function(){
   showResult(r, second);
   $('inSys').value=''; $('inDia').value=''; $('inPulse').value=''; $('inNote').value=''; $('inIrr').checked=false;
   noteSel={}; renderChips(); resetTime();
-  renderRecent(); toast(t('saved'));
+  renderAll(); toast(t('saved'));
   if (document.activeElement) document.activeElement.blur();
   window.scrollTo({top:0,behavior:'smooth'});
 });
@@ -595,13 +659,31 @@ var lastResult = null;
 function showResult(r, second){
   lastResult = {r:r, second:second};
   var l = level(r.s, r.d), pc = pulseCard(r), urgent = pulseLevel(r.p)==='vfast';
-  $('resultBox').innerHTML = (urgent ? pc : '') + '<div class="result lv-'+l+'">'+
+  $('resultBox').innerHTML = symptomBlock(r, l) + (urgent ? pc : '') + '<div class="result lv-'+l+'">'+
     '<div class="row" style="justify-content:space-between"><div class="big">'+r.s+'/'+r.d+(r.p?' <span style="font-size:22px;font-weight:600">♥ '+r.p+'</span>':'')+'</div>'+
     '<span class="lv lv-'+l+'" style="font-size:18px;background:transparent;border:2px solid currentColor">'+esc(t('lv')[l])+'</span></div>'+
     '<p style="margin:8px 0 0">'+t('msg')[l]+'</p>'+
     '<p class="small" style="margin:6px 0 0;opacity:.85">'+(second ? t('secondHint') : t('againHint'))+'</p></div>'+
     holdCard(r, l) + (urgent ? '' : pc);
 }
+// For dangerous readings, ask about symptoms with Yes/No instead of burying them in text.
+// Asked for: BP >=180/110, pulse >=130, or low BP in someone on BP medicine. Answer saved as r.sym.
+function needsAsk(r, l){ return l==='crisis' || pulseLevel(r.p)==='vfast' || (l==='low' && onBpMeds(r)); }
+function symptomBlock(r, l){
+  if (!needsAsk(r, l)) return '';
+  if (r.sym === true) return '<div class="notice ask"><h3>🚑 '+esc(t('emHead'))+'</h3><p style="font-size:20px">'+t('emMsg')+'</p>'+
+    '<a class="btn primary" href="tel:119">'+esc(t('call119'))+'</a></div>';
+  if (r.sym === false) return '<div class="notice"><p style="margin:0">'+esc(t('noSymMsg'))+'</p></div>';
+  return '<div class="notice ask"><h3>'+esc(t('askHead'))+'</h3><ul>'+
+    t('askList').map(function(s){ return '<li>'+esc(s)+'</li>'; }).join('')+'</ul>'+
+    '<div class="row"><button type="button" class="btn yes" data-sym="1">'+esc(t('askYes'))+'</button>'+
+    '<button type="button" class="btn" data-sym="0">'+esc(t('askNo'))+'</button></div></div>';
+}
+document.addEventListener('click', function(e){
+  var b = e.target.closest('[data-sym]'); if (!b || !lastResult) return;
+  lastResult.r.sym = b.getAttribute('data-sym')==='1'; persist();
+  showResult(lastResult.r, lastResult.second); renderRecent(); window.scrollTo(0,0);
+});
 // Low BP (<90/60) in someone on regular antihypertensives: advise holding the next dose and calling the doctor.
 function onBpMeds(r){ var p = S.profile; return !!(p.onMed || (p.meds && p.meds.trim()) || r.med); }
 function holdCard(r, l){
@@ -637,6 +719,7 @@ function rowHTML(r, withDate){
   if (r.p) meta.push(pulseLevel(r.p) ? '<span class="lv lv-'+PULSE_CLS[pulseLevel(r.p)]+'">♥ '+r.p+' '+esc(t('plv')[pulseLevel(r.p)])+'</span>' : '♥ '+r.p);
   if (r.med) meta.push('💊');
   if (r.irr) meta.push('⚠ '+t('irrLbl'));
+  if (r.sym) meta.push('<b style="color:var(--vhigh)">🚑 '+esc(t('symLbl'))+'</b>');
   if (r.note || r.tags) meta.push(esc(noteText(r)));
   return '<li><div class="when">'+(withDate? fDate(r.t)+'<br>' : '')+fTime(r.t)+'</div>'+
     '<div class="bp"><span class="s">'+r.s+'</span>/<span class="d">'+r.d+'</span></div>'+
@@ -677,6 +760,7 @@ function renderRangeChips(){
 $('rangeChips').addEventListener('click', function(e){
   var b=e.target.closest('.chip'); if(!b) return; S.range=+b.getAttribute('data-r'); persist(); renderReport();
 });
+$('skipDay1').addEventListener('change', function(){ S.skipDay1 = this.checked; persist(); renderReport(); });
 function inRange(){
   var a = sorted(); if (!S.range) return a;
   var start = new Date(); start.setHours(0,0,0,0); start = start.getTime() - (S.range-1)*86400000;
@@ -699,8 +783,23 @@ function computeStats(a){
     irr:a.filter(function(r){ return r.irr; }).length,
     fast:a.filter(function(r){ return r.p>100; }).length,
     slow:a.filter(function(r){ return r.p!=null && r.p<50; }).length,
-    pMax:a.reduce(function(m,r){ return r.p>m ? r.p : m; }, 0)
+    pMax:a.reduce(function(m,r){ return r.p>m ? r.p : m; }, 0),
+    // morning minus evening systolic; only meaningful with >=3 readings in each session
+    me: (am.length>=3 && pm.length>=3) ? mean(pick(am,'s')) - mean(pick(pm,'s')) : null
   };
+}
+var ME_LIMIT = 15;   // mmHg systolic difference worth pointing out
+function meNote(st){
+  if (st.me==null || Math.abs(st.me) < ME_LIMIT) return null;
+  return (st.me>0 ? t('meAm') : t('mePm')).replace('{n}', Math.abs(st.me));
+}
+// Readings used for averages/chart. With "leave out day 1" on, drop the first measured day
+// of the period (it tends to read high), but only when at least 3 days are measured.
+function statsSet(a){
+  if (!S.skipDay1 || !a.length) return {a:a, dropped:null};
+  var keys = {}; a.forEach(function(r){ keys[dayKey(r.t)] = 1; });
+  var ks = Object.keys(keys).sort(); if (ks.length < 3) return {a:a, dropped:null};
+  return {a:a.filter(function(r){ return dayKey(r.t)!==ks[0]; }), dropped:a[a.length-1].t};
 }
 // Under the average pulse: how many readings were fast/slow, else just "bpm".
 function pulseSub(st, html){
@@ -753,6 +852,7 @@ function chartSVG(a){
 function dailyData(a){
   var by = {};
   a.forEach(function(r){ var k=dayKey(r.t); (by[k]=by[k]||{t:r.t,am:[],pm:[],notes:[]})[isAM(r.t)?'am':'pm'].push(r);
+    if (r.sym) by[k].notes.push('🚑 '+t('symLbl'));
     if (level(r.s,r.d)==='low') by[k].notes.push(t('lowN')+' '+r.s+'/'+r.d);
     var pl = pulseLevel(r.p); if (pl) by[k].notes.push(t('plv')[pl]+' '+r.p);
     if (r.note || r.tags) by[k].notes.push(noteText(r)); if (r.irr) by[k].notes.push(t('irrLbl')); });
@@ -773,7 +873,7 @@ function dailyRows(a){
 /* ---- report as a PNG (iPhone home-screen apps cannot window.print) ---- */
 function reportCanvas(){
   var a = inRange(); if (!a.length) return null;
-  var st = computeStats(a), tg = target(), p = S.profile, days = dailyData(a);
+  var ss = statsSet(a), st = computeStats(ss.a), tg = target(), p = S.profile, days = dailyData(a), me = meNote(st);
   var C = {ink:'#1d1b19', muted:'#6b6560', line:'#e4dfd9', soft:'#fdecea', box:'#f6f4f1', sys:'#c0392b', dia:'#2563a8', hi:'#b42318'};
   var FONT = '-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif';
   var W = 1080, M = 56, rowH = 62, chartH = a.length>1 ? 440 : 0;
@@ -820,11 +920,13 @@ function reportCanvas(){
     text(k[2], cx+cw/2, cy+134, 22, k[4]?C.hi:C.muted, !!k[4], 'center', cw-16);
   });
   y += 2*ch + 16 + 30;
+  if (me){ box(M, y-4, W-2*M, 64, '#fff4d6'); text('⚠ '+me, M+20, y+38, 26, '#8a6100', true, 'left', W-2*M-40); y += 84; }
+  if (ss.dropped){ text(t('day1Note').replace('{d}', fDate(ss.dropped)), M, y+10, 22, C.muted); y += 40; }
   // chart
   if (chartH){
     y += 30; text(t('chartTitle'), M, y, 32, C.ink, true);
     text('— '+t('lgSys'), W-M-260, y, 24, C.sys, true, 'right'); text('— '+t('lgDia'), W-M-110, y, 24, C.dia, true, 'right'); text('- - '+t('lgTarget'), W-M, y, 24, C.muted, false, 'right');
-    var top = y + 20, L = M+50, R = M, m = chartModel(a, W, chartH, L, R, 10, 40);
+    var top = y + 20, L = M+50, R = M, m = chartModel(ss.a.length>1 ? ss.a : a, W, chartH, L, R, 10, 40);
     g.save(); g.translate(0, top);
     g.lineWidth = 1; g.strokeStyle = C.line;
     for (var v=m.lo; v<=m.hi; v+=20){ g.beginPath(); g.moveTo(L, m.y(v)); g.lineTo(W-R, m.y(v)); g.stroke(); text(v, L-10, m.y(v)+8, 22, C.muted, false, 'right'); }
@@ -889,8 +991,8 @@ var PUNCT = {'：':': ','（':' (','）':')','；':'; ','，':', ','、':', '};
 function P(s){ return lang==='zh' ? s : s.replace(/[：（）；，、]/g, function(c){ return PUNCT[c]; }); }
 
 function renderReport(){
-  renderRangeChips();
-  var a = inRange(), st = computeStats(a), tg = target(), p = S.profile;
+  renderRangeChips(); $('skipDay1').checked = !!S.skipDay1;
+  var a = inRange(), ss = statsSet(a), st = computeStats(ss.a), tg = target(), p = S.profile, me = meNote(st);
   var who = [];
   if (p.name) who.push('<b>'+esc(p.name)+'</b>');
   if (p.birth) who.push(t('ageLbl')+' '+esc(p.birth));
@@ -908,7 +1010,9 @@ function renderReport(){
     '<div class="stat"><div class="k">'+esc(t('maxBp'))+'</div><div class="v hi" style="font-size:22px">'+st.max.s+'/'+st.max.d+'</div><div class="k">'+fDate(st.max.t)+' '+fTime(st.max.t)+'</div></div>'+
     '<div class="stat"><div class="k">'+esc(t('dayCount'))+'</div><div class="v">'+st.days+'</div><div class="k">'+(st.irr? '⚠ '+esc(t('irrLbl'))+' ×'+st.irr : '&nbsp;')+'</div></div>'+
     '</div>';
-  var svg = chartSVG(a);
+  if (me) h += '<div class="callout">⚠ '+esc(me)+'</div>';
+  if (ss.dropped) h += '<div class="small muted" style="margin:0 0 6px">'+esc(t('day1Note').replace('{d}', fDate(ss.dropped)))+'</div>';
+  var svg = chartSVG(ss.a);
   if (svg) h += '<h3 style="font-size:16px;margin:14px 0 4px">'+esc(t('chartTitle'))+'</h3>'+
     '<div class="legend"><span><i style="background:var(--sys)"></i>'+esc(t('lgSys'))+'</span><span><i style="background:var(--dia)"></i>'+esc(t('lgDia'))+'</span><span><i style="background:repeating-linear-gradient(90deg,var(--muted) 0 4px,transparent 4px 7px)"></i>'+esc(t('lgTarget'))+'</span></div>'+svg;
   h += '<h3 style="font-size:16px;margin:14px 0 4px">'+esc(t('dailyTable'))+'</h3>'+
@@ -918,11 +1022,13 @@ function renderReport(){
 }
 
 function summaryText(){
-  var a = inRange(), st = computeStats(a), tg = target(), p = S.profile, L=[];
+  var a = inRange(), ss = statsSet(a), st = computeStats(ss.a), tg = target(), p = S.profile, L=[], me = meNote(st);
   L.push(t('summaryHead')+(p.name?' '+p.name:''));
   if (a.length) L.push(t('period')+'：'+fDateY(a[a.length-1].t)+' – '+fDateY(a[0].t)+'，'+st.n+' '+t('readings')+'，'+st.days+' '+t('days'));
   L.push(t('avg')+'：'+bpTxt(st.s,st.d)+'（'+t('targetLbl')+' '+tg.s+'/'+tg.d+'）');
   L.push(t('amAvg')+'：'+bpTxt(st.amS,st.amD)+'；'+t('pmAvg')+'：'+bpTxt(st.pmS,st.pmD));
+  if (me) L.push('⚠ '+me);
+  if (ss.dropped) L.push(t('day1Note').replace('{d}', fDate(ss.dropped)));
   if (st.p!=null) L.push(t('pulseAvg')+'：'+st.p+((st.fast||st.slow)?'（'+pulseSub(st,false)+'）':''));
   if (st.irr) L.push('⚠ '+t('irrLbl')+' ×'+st.irr);
   if (st.max) L.push(t('maxBp')+'：'+st.max.s+'/'+st.max.d+'（'+fDate(st.max.t)+' '+fTime(st.max.t)+'）');
@@ -930,7 +1036,7 @@ function summaryText(){
   if (p.meds) L.push(t('medsLbl')+'：'+p.meds.replace(/\n/g,'；'));
   L.push('');
   a.slice().reverse().forEach(function(r){ var pl = pulseLevel(r.p);
-    L.push(fDate(r.t)+' '+fTime(r.t)+'  '+r.s+'/'+r.d+(r.p?'  ♥'+r.p+(pl?' ('+t('plv')[pl]+')':''):'')+(r.irr?'  ⚠'+t('irrLbl'):'')+((r.note||r.tags)?'  '+noteText(r):'')); });
+    L.push(fDate(r.t)+' '+fTime(r.t)+'  '+r.s+'/'+r.d+(r.p?'  ♥'+r.p+(pl?' ('+t('plv')[pl]+')':''):'')+(r.irr?'  ⚠'+t('irrLbl'):'')+(r.sym?'  🚑'+t('symLbl'):'')+((r.note||r.tags)?'  '+noteText(r):'')); });
   L.push(''); L.push('— '+t('appName')+' · '+t('madeBy'));
   return P(L.join('\n'));
 }
@@ -987,9 +1093,12 @@ $('pfOnMed').addEventListener('change', function(){ S.profile.onMed = this.check
 function fillProfile(){ var p=S.profile; $('pfOnMed').checked=!!p.onMed; $('pfName').value=p.name||''; $('pfBirth').value=p.birth||''; $('pfMeds').value=p.meds||''; $('pfTS').value=p.ts||130; $('pfTD').value=p.td||80; }
 bindProfile('pfName','name'); bindProfile('pfBirth','birth'); bindProfile('pfMeds','meds'); bindProfile('pfTS','ts',true); bindProfile('pfTD','td',true);
 
-$('exportBtn').addEventListener('click', function(){
+$('exportBtn').addEventListener('click', function(){ exportBackup(); });
+function exportBackup(){
+  S.lastBackup = Date.now(); S.backupSnooze = 0; persist();
   saveFile('BP-backup-'+stamp()+'.json', 'application/json', JSON.stringify({app:'bplog', v:1, exported:new Date().toISOString(), profile:S.profile, readings:S.readings}));
-});
+  renderNotices();
+}
 $('importBtn').addEventListener('click', function(){ $('importFile').click(); });
 $('importFile').addEventListener('change', function(){
   var f=this.files && this.files[0]; if(!f) return; var rd=new FileReader();
@@ -997,7 +1106,7 @@ $('importFile').addEventListener('change', function(){
     try {
       var o=JSON.parse(rd.result); if (!o || !Array.isArray(o.readings)) throw 0;
       var have={}; S.readings.forEach(function(r){ have[r.id]=1; }); var n=0;
-      o.readings.forEach(function(r){ if (r && r.id && !have[r.id] && +r.t && +r.s && +r.d){ S.readings.push({id:String(r.id),t:+r.t,s:+r.s,d:+r.d,p:r.p?+r.p:undefined,med:!!r.med||undefined,irr:!!r.irr||undefined,note:r.note?String(r.note).slice(0,200):undefined,tags:Array.isArray(r.tags)?r.tags.filter(function(i){ return i>=0 && i<6; }).map(Number):undefined}); n++; } });
+      o.readings.forEach(function(r){ if (r && r.id && !have[r.id] && +r.t && +r.s && +r.d){ S.readings.push({id:String(r.id),t:+r.t,s:+r.s,d:+r.d,p:r.p?+r.p:undefined,med:!!r.med||undefined,irr:!!r.irr||undefined,note:r.note?String(r.note).slice(0,200):undefined,sym:typeof r.sym==='boolean'?r.sym:undefined,tags:Array.isArray(r.tags)?r.tags.filter(function(i){ return i>=0 && i<6; }).map(Number):undefined}); n++; } });
       if (o.profile && !S.profile.name) S.profile = Object.assign(S.profile, o.profile);
       persist(); fillProfile(); renderAll(); toast(t('imported').replace('{n}', n), 3000);
     } catch(e){ toast(t('importErr'), 3000); }
@@ -1032,7 +1141,68 @@ function renderInstall(){
 
 $('langBtn').addEventListener('click', function(){ lang = lang==='zh' ? 'en' : 'zh'; S.lang=lang; persist(); applyLang(); });
 
-function renderAll(){ renderRecent(); if (current==='history') renderHistory(); if (current==='report') renderReport(); }
+/* ---- notices on the Add page: iPhone Safari install warning, backup reminder ---- */
+var DAY = 86400000;
+function renderNotices(){
+  var h = '';
+  if (isIOS && !standalone && !S.iosWarnOff){
+    h += '<div class="notice"><h3>📲 '+esc(t('installWarnHead'))+'</h3><p>'+t('installWarn')+'</p>'+
+      (S.readings.length ? '<p class="small">'+esc(t('installWarnMoved'))+'</p>' : '')+
+      '<div class="row"><button type="button" class="btn" data-nt="steps">'+esc(t('seeSteps'))+'</button>'+
+      '<button type="button" class="btn" data-nt="iosoff">'+esc(t('gotIt'))+'</button></div></div>';
+  }
+  // Remind monthly once there is something worth keeping; count from the first reading if never backed up.
+  var now = Date.now(), first = S.readings.reduce(function(m,r){ return Math.min(m, r.t); }, now);
+  var since = S.lastBackup || first;
+  if (S.readings.length >= 10 && now - since > 30*DAY && !(S.backupSnooze > now)){
+    var x = S.lastBackup ? t('daysAgo').replace('{n}', Math.floor((now - S.lastBackup)/DAY)) : t('never');
+    h += '<div class="notice"><h3>💾 '+esc(t('backupHead'))+'</h3><p>'+esc(t('backupMsg').replace('{x}', x))+'</p>'+
+      '<div class="row"><button type="button" class="btn" data-nt="backup">'+esc(t('backupNow'))+'</button>'+
+      '<button type="button" class="btn" data-nt="snooze">'+esc(t('later'))+'</button></div></div>';
+  }
+  $('notices').innerHTML = h;
+}
+$('notices').addEventListener('click', function(e){
+  var b = e.target.closest('[data-nt]'); if (!b) return;
+  var k = b.getAttribute('data-nt');
+  if (k==='steps') showTab('settings');
+  if (k==='iosoff'){ S.iosWarnOff = true; persist(); }
+  if (k==='backup') exportBackup();
+  if (k==='snooze'){ S.backupSnooze = Date.now() + 7*DAY; persist(); }
+  renderNotices();
+});
+
+/* ---- 7-day status on the Add page: 722 progress + average vs target ---- */
+function renderWeek(){
+  var today = new Date(); today.setHours(0,0,0,0);
+  var start = today.getTime() - 6*DAY;
+  var a = S.readings.filter(function(r){ return r.t >= start; });
+  var cols = '', full = 0;
+  for (var i=0;i<7;i++){
+    var d0 = start + i*DAY, d1 = d0 + DAY;
+    var dayR = a.filter(function(r){ return r.t>=d0 && r.t<d1; });
+    var am = dayR.some(function(r){ return isAM(r.t); }), pm = dayR.some(function(r){ return !isAM(r.t); });
+    if (am && pm) full++;
+    var dd = new Date(d0);
+    cols += '<div><div class="d">'+(dd.getMonth()+1)+'/'+dd.getDate()+'</div><div class="m'+(am?' on':'')+'">☀</div><div class="m'+(pm?' on':'')+'">☾</div></div>';
+  }
+  var h = '<h2>'+esc(t('weekHead'))+'</h2><div class="small muted">'+esc(t('weekProg').replace('{d}', full))+'</div><div class="week">'+cols+'</div>';
+  var st = computeStats(a), tg = target(), tgTxt = tg.s+'/'+tg.d;
+  if (st.n >= 6 && st.days >= 3){
+    var cls = 'ok', msg = t('weekOk');
+    if (st.s>=tg.s || st.d>=tg.d){ cls = 'high'; msg = t('weekAbove'); }
+    else if (st.s<90 || st.d<60){ cls = 'low'; msg = onBpMeds({}) ? t('weekLowMed') : t('weekLow'); }
+    h += '<div class="result lv-'+cls+'" style="margin:10px 0 0"><div class="small">'+esc(P(t('weekAvg').replace('{n}', st.n).replace('{d}', st.days)))+'</div>'+
+      '<div class="wavg">'+bpTxt(st.s,st.d)+' <span class="small" style="font-weight:400">mmHg</span></div>'+
+      '<p style="margin:4px 0 0">'+esc(P(msg.replace('{tg}', tgTxt)))+'</p>'+
+      (meNote(st) ? '<p class="small" style="margin:6px 0 0;font-weight:700">⚠ '+esc(meNote(st))+'</p>' : '')+'</div>';
+  } else {
+    h += '<p class="small muted" style="margin:8px 0 0">'+esc(t('weekFew'))+'</p>';
+  }
+  $('weekCard').innerHTML = h;
+}
+
+function renderAll(){ renderRecent(); renderNotices(); renderWeek(); if (current==='history') renderHistory(); if (current==='report') renderReport(); }
 
 /* init */
 fillProfile(); resetTime(); $('inMed').checked = medDefault();
