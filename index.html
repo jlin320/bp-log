@@ -386,19 +386,19 @@ var T = {
    warn:'稍微偏高。請照 722 原則繼續記錄。',
    high:'高於居家目標。休息 1 分鐘後再量第二遍；持續偏高請回診時給醫師看。',
    vhigh:'明顯偏高。坐著休息 5 分鐘再量一次。如果常常這麼高，請提早回診。',
-   crisis:'血壓非常高！請坐著休息 5 分鐘後再量。若仍 ≥180/110，或有胸痛、喘不過氣、劇烈頭痛、手腳無力、說話不清楚、視力模糊，請<b>立即就醫或撥 119</b>。'
+   crisis:'血壓非常高！請坐著休息 5 分鐘後再量。若仍 ≥180/110，或有胸痛、喘不過氣、劇烈頭痛、手腳無力、說話不清楚、視力模糊，請<b>盡速就醫</b>。'
   },
   secondHint:'這是本次第 2 遍，很好！', againHint:'建議 1 分鐘後再量第 2 遍。',
   plv:{fast:'心跳偏快', vfast:'心跳很快', slow:'心跳偏慢', irr:'心律不整'},
   pmsg:{
    fast:'休息時心跳超過 100 次/分。請坐著休息 5 分鐘後再量一次。可能原因：發燒、脫水、緊張焦慮、咖啡或茶、貧血、甲狀腺問題，或心律不整（如心房顫動、陣發性上心室心搏過速）。休息後仍超過 100，或常常這樣，請盡快回診告訴醫師。',
-   vfast:'心跳每分鐘 130 次以上，可能是心律不整（如心房顫動、陣發性上心室心搏過速）、發燒或脫水。若有<b>胸痛、喘不過氣、頭暈、快昏倒、心悸停不下來</b>，請<b>立即就醫或撥 119</b>。沒有症狀的話，休息 5 分鐘後再量；仍在 120 以上請今天就醫。',
+   vfast:'心跳每分鐘 130 次以上，可能是心律不整（如心房顫動、陣發性上心室心搏過速）、發燒或脫水。若有<b>胸痛、喘不過氣、頭暈、快昏倒、心悸停不下來</b>，請<b>盡速就醫</b>。沒有症狀的話，休息 5 分鐘後再量；仍在 120 以上請今天就醫。',
    slow:'心跳低於 50 次/分。有些藥物（如乙型阻斷劑）會讓心跳變慢。若有頭暈、無力、喘、快昏倒，請盡快就醫；沒有症狀也請回診時告訴醫師。',
    irr:'血壓計顯示心律不整，可能是心房顫動等問題。請多量幾次並記錄，回診時一定要給醫師看；若同時心悸、胸悶、頭暈或喘，請盡快就醫。'
   },
   fastN:'心跳>100', slowN:'心跳<50', madeBy:'林醫院 製作',
   holdHead:'先暫停降血壓藥',
-  holdMsg:'您有在吃降血壓藥，血壓偏低（低於 90/60）時：<b>先暫停下一次的降血壓藥</b>，坐下或躺下休息、多喝水，30 分鐘後再量一次，並<b>盡快聯絡醫師或回診</b>，請醫師調整藥量。其他藥物（例如心臟、心律、心衰竭用藥）請先問醫師，不要自行停藥。若收縮壓低於 80，或有快昏倒、意識不清、胸痛、喘不過氣，請<b>立即就醫或撥 119</b>。',
+  holdMsg:'您有在吃降血壓藥，血壓偏低（低於 90/60）時：<b>先暫停下一次的降血壓藥</b>，坐下或躺下休息、多喝水，30 分鐘後再量一次，並<b>盡快聯絡醫師或回診</b>，請醫師調整藥量。其他藥物（例如心臟、心律、心衰竭用藥）請先問醫師，不要自行停藥。若收縮壓低於 80，或有快昏倒、意識不清、胸痛、喘不過氣，請<b>盡速就醫</b>。',
   lowN:'血壓偏低',
   meAm:'早上收縮壓平均比晚上高 {n} mmHg（晨間血壓偏高），可與醫師討論服藥時間。',
   mePm:'晚上收縮壓平均比早上高 {n} mmHg，可與醫師討論服藥時間。',
@@ -419,8 +419,8 @@ var T = {
   askHead:'現在有沒有下面任何一種情況？',
   askList:['胸痛或胸悶','喘不過氣','劇烈頭痛','手腳無力或發麻、嘴歪','說話不清楚','視力模糊','快昏倒或意識不清','心悸停不下來'],
   askYes:'有', askNo:'沒有',
-  emHead:'請立即就醫', emMsg:'請馬上撥 <b>119</b> 或請家人送急診，不要自己開車。把這個畫面給醫護人員看。', call119:'📞 撥打 119',
-  noSymMsg:'好的。請坐著休息 5 分鐘後再量一次，並照下面的建議做。如果出現上面任何一種情況，請立即撥 119。',
+  emHead:'請盡速就醫', emMsg:'請<b>盡速就醫</b>，請家人陪同，不要自己開車。把這個畫面給醫護人員看。',
+  noSymMsg:'好的。請坐著休息 5 分鐘後再量一次，並照下面的建議做。如果出現上面任何一種情況，請盡速就醫。',
   symLbl:'有症狀',
   report:'居家血壓報告', days:'天', all:'全部', avg:'平均血壓', amAvg:'早上平均', pmAvg:'晚上平均', pulseAvg:'平均心跳',
   readings:'筆', dayCount:'有量天數', overTarget:'超過目標', maxBp:'最高', minBp:'最低', targetLbl:'目標',
@@ -460,19 +460,19 @@ var T = {
    warn:'Slightly elevated. Keep recording with the 722 rule.',
    high:'Above the home target. Take a second reading in 1 minute; show your doctor if it stays high.',
    vhigh:'Clearly high. Rest 5 minutes and measure again. If this happens often, see your doctor sooner.',
-   crisis:'Very high! Rest 5 minutes and measure again. If still ≥180/110, or you have chest pain, shortness of breath, severe headache, weakness, trouble speaking or blurred vision, <b>get emergency care now (call 119)</b>.'
+   crisis:'Very high! Rest 5 minutes and measure again. If still ≥180/110, or you have chest pain, shortness of breath, severe headache, weakness, trouble speaking or blurred vision, <b>see a doctor as soon as possible</b>.'
   },
   secondHint:'That is reading 2 of this session. Well done!', againHint:'Take a 2nd reading in 1 minute.',
   plv:{fast:'Fast pulse', vfast:'Very fast pulse', slow:'Slow pulse', irr:'Irregular'},
   pmsg:{
    fast:'Resting pulse is over 100. Sit and rest 5 minutes, then measure again. Possible causes: fever, dehydration, stress or anxiety, coffee or tea, anaemia, thyroid problems, or an arrhythmia (such as atrial fibrillation or PSVT). If it stays over 100 after resting, or happens often, see your doctor soon.',
-   vfast:'Pulse is 130 or more. This may be an arrhythmia (such as atrial fibrillation or PSVT), fever or dehydration. If you have <b>chest pain, shortness of breath, dizziness, feel faint, or palpitations that will not stop</b>, <b>get emergency care now (call 119)</b>. With no symptoms, rest 5 minutes and measure again; if still 120 or more, see a doctor today.',
+   vfast:'Pulse is 130 or more. This may be an arrhythmia (such as atrial fibrillation or PSVT), fever or dehydration. If you have <b>chest pain, shortness of breath, dizziness, feel faint, or palpitations that will not stop</b>, <b>see a doctor as soon as possible</b>. With no symptoms, rest 5 minutes and measure again; if still 120 or more, see a doctor today.',
    slow:'Pulse is under 50. Some medicines (such as beta-blockers) slow the heart. If you feel dizzy, weak, short of breath or faint, see a doctor soon; otherwise tell your doctor at the next visit.',
    irr:'The monitor showed an irregular heartbeat, which may be atrial fibrillation or another rhythm problem. Measure a few more times and record them, and be sure to show your doctor. If you also have palpitations, chest discomfort, dizziness or breathlessness, see a doctor soon.'
   },
   fastN:'Pulse >100', slowN:'Pulse <50', madeBy:'Made by Lin Hospital',
   holdHead:'Hold your BP medicine',
-  holdMsg:'You take blood pressure medicine and your BP is low (below 90/60). <b>Skip your next dose of blood pressure medicine</b>, sit or lie down, drink some water, and measure again in 30 minutes. <b>Contact your doctor soon</b> so the dose can be adjusted. Do not stop other medicines (such as heart, rhythm or heart-failure medicines) without asking your doctor. If systolic is below 80, or you feel faint, confused, or have chest pain or shortness of breath, <b>get emergency care now (call 119)</b>.',
+  holdMsg:'You take blood pressure medicine and your BP is low (below 90/60). <b>Skip your next dose of blood pressure medicine</b>, sit or lie down, drink some water, and measure again in 30 minutes. <b>Contact your doctor soon</b> so the dose can be adjusted. Do not stop other medicines (such as heart, rhythm or heart-failure medicines) without asking your doctor. If systolic is below 80, or you feel faint, confused, or have chest pain or shortness of breath, <b>see a doctor as soon as possible</b>.',
   lowN:'Low BP',
   meAm:'Morning systolic averages {n} mmHg higher than evening (morning hypertension). Discuss medicine timing with your doctor.',
   mePm:'Evening systolic averages {n} mmHg higher than morning. Discuss medicine timing with your doctor.',
@@ -493,8 +493,8 @@ var T = {
   askHead:'Do you have any of these right now?',
   askList:['Chest pain or tightness','Shortness of breath','Severe headache','Weak or numb arm/leg, face drooping','Trouble speaking','Blurred vision','Feeling faint or confused','Palpitations that will not stop'],
   askYes:'Yes', askNo:'No',
-  emHead:'Get emergency care now', emMsg:'Call <b>119</b> now or have someone take you to the emergency room. Do not drive yourself. Show this screen to the staff.', call119:'📞 Call 119',
-  noSymMsg:'OK. Sit and rest 5 minutes, then measure again, and follow the advice below. If any of those symptoms start, call 119 right away.',
+  emHead:'See a doctor as soon as possible', emMsg:'Please <b>see a doctor as soon as possible</b>. Have someone go with you; do not drive yourself. Show this screen to the staff.',
+  noSymMsg:'OK. Sit and rest 5 minutes, then measure again, and follow the advice below. If any of those symptoms start, see a doctor as soon as possible.',
   symLbl:'Symptoms',
   report:'Home Blood Pressure Report', days:'days', all:'All', avg:'Average BP', amAvg:'Morning avg', pmAvg:'Evening avg', pulseAvg:'Avg pulse',
   readings:'readings', dayCount:'Days measured', overTarget:'Above target', maxBp:'Highest', minBp:'Lowest', targetLbl:'Target',
@@ -671,8 +671,7 @@ function showResult(r, second){
 function needsAsk(r, l){ return l==='crisis' || pulseLevel(r.p)==='vfast' || (l==='low' && onBpMeds(r)); }
 function symptomBlock(r, l){
   if (!needsAsk(r, l)) return '';
-  if (r.sym === true) return '<div class="notice ask"><h3>🚑 '+esc(t('emHead'))+'</h3><p style="font-size:20px">'+t('emMsg')+'</p>'+
-    '<a class="btn primary" href="tel:119">'+esc(t('call119'))+'</a></div>';
+  if (r.sym === true) return '<div class="notice ask"><h3>🚑 '+esc(t('emHead'))+'</h3><p style="font-size:20px">'+t('emMsg')+'</p></div>';
   if (r.sym === false) return '<div class="notice"><p style="margin:0">'+esc(t('noSymMsg'))+'</p></div>';
   return '<div class="notice ask"><h3>'+esc(t('askHead'))+'</h3><ul>'+
     t('askList').map(function(s){ return '<li>'+esc(s)+'</li>'; }).join('')+'</ul>'+
