@@ -126,7 +126,7 @@ table.days td:last-child{min-width:4em}
 .legend i{display:inline-block;width:14px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
 /* nav */
 nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--card);border-top:1px solid var(--line);
-  display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom)}
+  display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom)}
 nav.bottom button{border:0;background:none;color:var(--muted);padding:8px 2px 10px;font-size:13px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
 nav.bottom button svg{width:26px;height:26px}
 nav.bottom button.on{color:var(--accent);font-weight:700}
@@ -155,6 +155,32 @@ a.btn{text-decoration:none}
 .wavg{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
 .credit{text-align:center;font-size:14px;color:var(--muted);margin:4px 0 12px;letter-spacing:.5px}
 .credit::before{content:"♥ ";color:var(--accent)}
+/* labs */
+.lab-grp{font-size:15px;color:var(--muted);margin:16px 0 0;font-weight:700}
+.lab-row{padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
+.lab-grp + .lab-row{border-top:0}
+.lab-row .top{display:flex;align-items:baseline;gap:8px}
+.lab-row .nm{flex:1;min-width:0;font-weight:700}
+.lab-row .nm small{font-weight:400;color:var(--muted);font-size:13px;margin-left:4px}
+.lab-row .val{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lab-row .val small{font-size:13px;font-weight:400;color:var(--muted)}
+.lab-row .sub{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--muted);flex-wrap:wrap}
+.lab-row .spark{margin-left:auto}
+.lab-detail{margin-top:8px;background:var(--bg);border-radius:12px;padding:10px 12px;font-size:16px;cursor:default}
+.lab-detail p{margin:0 0 6px}
+.vH{color:var(--vhigh)} .vL{color:var(--low)}
+table.labt{width:100%;border-collapse:collapse;font-size:16px;font-variant-numeric:tabular-nums}
+table.labt th,table.labt td{padding:6px 4px;border-top:1px solid var(--line);text-align:center;white-space:nowrap}
+table.labt th{font-size:14px;color:var(--muted);font-weight:600}
+table.labt td:first-child,table.labt th:first-child{text-align:left;white-space:normal}
+.datelist{list-style:none;margin:0;padding:0}
+.datelist li{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.datelist li:first-child{border-top:0}
+.datelist li span{flex:1}
+.scanwrap{position:relative;max-width:520px;margin:0 auto}
+.scanwrap video{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:16px;background:#000}
+.scanwrap .frame{position:absolute;inset:12%;border:4px solid rgba(255,255,255,.9);border-radius:14px;box-shadow:0 0 0 999px rgba(0,0,0,.25);pointer-events:none}
+body.doctor #tab-labs{display:none}
 /* doctor view: report only, large type */
 #docClose{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:30;padding:10px 16px;box-shadow:0 2px 10px rgba(0,0,0,.25)}
 body.doctor{padding-bottom:env(safe-area-inset-bottom)}
@@ -275,6 +301,33 @@ body.doctor table.days th{font-size:17px}
   </div>
 </section>
 
+<!-- ========== LABS ========== -->
+<section class="tab" id="tab-labs">
+  <div class="card">
+    <h2 data-i="labsTitle">我的檢驗</h2>
+    <button class="btn primary" id="scanBtn" type="button" data-i="scanBtn">📷 掃描醫院的檢驗 QR Code</button>
+    <p class="small muted" style="margin:8px 0 0" data-i="labHint"></p>
+  </div>
+  <div id="labBody"></div>
+  <div class="card">
+    <h2 data-i="labTgtHead">醫師給的目標（可不填）</h2>
+    <div class="row" style="margin-bottom:8px"><span style="flex:1" data-i="ldlTgt">LDL 壞膽固醇低於</span>
+      <input type="text" class="num" id="pfLdlT" inputmode="decimal" maxlength="4" style="font-size:22px;width:96px;padding:6px"> <span class="muted small">mg/dL</span></div>
+    <div class="row"><span style="flex:1" data-i="a1cTgt">糖化血色素低於</span>
+      <input type="text" class="num" id="pfA1cT" inputmode="decimal" maxlength="4" style="font-size:22px;width:96px;padding:6px"> <span class="muted small">%</span></div>
+    <p class="small muted" style="margin:8px 0 0" data-i="labTgtHint"></p>
+  </div>
+  <p class="credit" data-i="madeBy">林醫院 製作</p>
+</section>
+
+<!-- lab QR scanner + import confirmation -->
+<div class="overlay no-print" id="scanOverlay" role="dialog" aria-modal="true">
+  <div class="ov-bar"><span></span><button class="btn" id="scanClose" type="button" data-i="close">✕ 關閉</button></div>
+  <div class="scanwrap"><video id="scanVideo" playsinline muted></video><div class="frame"></div></div>
+  <p id="scanMsg" style="text-align:center;font-size:20px;font-weight:700;margin:14px 0 0"></p>
+</div>
+<div class="overlay no-print" id="labImp" role="dialog" aria-modal="true"><div class="card" id="labImpBody" style="max-width:560px;margin:20px auto"></div></div>
+
 <!-- doctor view close button + report image overlay -->
 <button class="btn no-print" id="docClose" type="button" data-i="close">✕ 關閉</button>
 <div class="overlay no-print" id="imgOverlay" role="dialog" aria-modal="true">
@@ -341,6 +394,9 @@ body.doctor table.days th{font-size:17px}
   <button type="button" data-tab="history">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>
     <span data-i="navHistory">歷史</span></button>
+  <button type="button" data-tab="labs">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M7.5 15h9"/></svg>
+    <span data-i="navLabs">檢驗</span></button>
   <button type="button" data-tab="report">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>
     <span data-i="navReport">給醫師看</span></button>
@@ -429,7 +485,40 @@ var T = {
   exported:'已匯出', imported:'已還原 {n} 筆記錄', importErr:'無法讀取這個檔案', copied:'已複製摘要，可貼到 LINE',
   themeAuto:'跟手機一樣', themeLight:'淺色', themeDark:'深色',
   storageErr:'這個瀏覽器無法儲存資料（可能是無痕模式）。請用一般模式開啟。',
-  summaryHead:'【居家血壓摘要】', generated:'產生於'
+  summaryHead:'【居家血壓摘要】', generated:'產生於',
+  navLabs:'檢驗', labsTitle:'我的檢驗', scanBtn:'📷 掃描醫院的檢驗 QR Code',
+  labHint:'回診時請醫護人員在電腦上打開「傳檢驗到病人手機」的 QR Code，按上面的按鈕掃描。結果只存在這支手機裡。',
+  labEmpty:'還沒有檢驗結果。下次回診抽血後，請醫護人員給您掃描。', labLatest:'最近一次檢驗', labTimes:'共 {n} 次檢驗', labTap:'點項目可看說明和歷次變化',
+  labPrev:'上次', labRange:'參考範圍', labTargetLbl:'您的目標', flagH:'偏高', flagL:'偏低', flagN:'正常', flagT:'高於目標',
+  labTgtHead:'醫師給的目標（可不填）', ldlTgt:'LDL 壞膽固醇低於', a1cTgt:'糖化血色素低於',
+  labTgtHint:'例如：心臟病、中風後 LDL 常要低於 70；糖尿病的 HbA1c 常要低於 7。請依醫師建議填寫。',
+  labDates:'檢驗日期（可刪除）', labDelQ:'刪除 {d} 的檢驗結果？',
+  labImpHead:'收到檢驗結果', labImpMsg:'{n} 次檢驗，共 {k} 個數值', labImpSave:'存到我的檢驗', cancel:'取消',
+  labImpDiff:'⚠ 這份檢驗和之前存的好像不是同一個人。確定是您本人的嗎？',
+  labImpIOS:'iPhone：如果您已把 App 加到主畫面，請改從主畫面的 App 打開「檢驗」→「掃描」。在這裡存的結果，不會出現在主畫面的 App 裡。',
+  labSaved:'已存 {n} 次檢驗', scanAim:'把 QR Code 放進框框裡', scanWrong:'這不是檢驗結果的 QR Code',
+  camErr:'無法開啟相機。請到手機「設定」允許使用相機，或改用手機的相機 App 掃描。',
+  labRepHead:'檢驗結果（最近 {n} 次）', labAll:'全部數值',
+  labGroups:{sugar:'血糖', lipid:'血脂', kidney:'腎臟', liver:'肝臟', salt:'電解質', blood:'血液'},
+  labInfo:{
+   glu:'空腹 8 小時後的血糖。100–125 是血糖偏高（糖尿病前期），兩次 ≥126 可能是糖尿病。',
+   a1c:'近 3 個月的平均血糖。5.7–6.4 是糖尿病前期，≥6.5 可能是糖尿病。糖尿病的人通常目標低於 7（依醫師建議）。',
+   tc:'血中膽固醇總量。要和 LDL、HDL 一起看。',
+   tg:'受飲食和喝酒影響很大，抽血前要空腹。太高會增加心血管疾病和胰臟炎的風險。',
+   hdl:'「好的」膽固醇，越高越好。規律運動、不抽菸可以提高。',
+   ldl:'「壞的」膽固醇，是預防心肌梗塞和中風最重要的數字。有心臟病、中風、糖尿病或腎臟病的人，目標更低。',
+   cr:'腎功能指標，數值越高代表腎臟過濾越差。會受肌肉量影響，要和 eGFR 一起看。',
+   eg:'腎臟每分鐘能過濾多少血液，越高越好。低於 60 代表腎功能減退，有些藥要調整劑量；止痛藥（NSAID）要小心使用。',
+   bun:'蛋白質代謝後的廢物，由腎臟排出。脫水或腎功能差時會升高。',
+   ua:'太高容易痛風和腎結石。少喝含糖飲料和酒、少吃內臟和濃湯。',
+   uacr:'尿中的白蛋白，是腎臟早期受損的指標。糖尿病和高血壓的人建議每年檢查。',
+   got:'肝功能指數。升高可能是脂肪肝、肝炎、喝酒或藥物影響，也可能來自肌肉。',
+   gpt:'肝功能指數，比 GOT 更專門反映肝臟。升高常見於脂肪肝、肝炎、喝酒或藥物影響。',
+   k:'血鉀。吃某些血壓藥（ACEI、ARB、利尿劑）或腎功能不好時要追蹤；太高或太低都可能造成心律不整。',
+   na:'血鈉。太低時會頭暈、倦怠、意識不清，常見於利尿劑或喝太多水。',
+   hb:'紅血球裡帶氧氣的蛋白質。太低是貧血，可能會累、喘、頭暈。',
+   wbc:'白血球，對抗感染。太高可能有感染或發炎，太低容易感染。',
+   plt:'血小板，幫助止血。太低容易瘀青、出血。'}
  },
  en: {
   appName:'Home BP Log', sys:'Systolic (top)', dia:'Diastolic (bottom)', pulse:'Pulse', bpm:'bpm', time:'Time',
@@ -503,13 +592,82 @@ var T = {
   exported:'Exported', imported:'Restored {n} readings', importErr:'Could not read this file', copied:'Summary copied',
   themeAuto:'Match phone', themeLight:'Light', themeDark:'Dark',
   storageErr:'This browser cannot save data (private mode?). Please open it in a normal window.',
-  summaryHead:'[Home BP summary]', generated:'Generated'
+  summaryHead:'[Home BP summary]', generated:'Generated',
+  navLabs:'Labs', labsTitle:'My lab results', scanBtn:'📷 Scan the clinic\'s lab QR code',
+  labHint:'At your visit, ask the staff to open the lab QR code on their screen, then tap the button above to scan it. Results are saved on this phone only.',
+  labEmpty:'No lab results yet. After your next blood test, ask the staff for the QR code.', labLatest:'Latest results', labTimes:'Blood tests: {n}', labTap:'Tap a test to see what it means and how it changed',
+  labPrev:'Previous', labRange:'Normal range', labTargetLbl:'Your target', flagH:'High', flagL:'Low', flagN:'Normal', flagT:'Above target',
+  labTgtHead:'Targets from your doctor (optional)', ldlTgt:'LDL below', a1cTgt:'HbA1c below',
+  labTgtHint:'For example, after a heart attack or stroke LDL is often kept below 70; in diabetes HbA1c is often kept below 7. Use the numbers your doctor gives you.',
+  labDates:'Test dates (can delete)', labDelQ:'Delete the results from {d}?',
+  labImpHead:'Lab results received', labImpMsg:'Blood tests: {n} · values: {k}', labImpSave:'Save to my results', cancel:'Cancel',
+  labImpDiff:'⚠ These results seem to belong to a different person from the ones already saved. Are they yours?',
+  labImpIOS:'iPhone: if you added the app to your Home Screen, open it from there and use Labs → Scan. Results saved here will not appear in the Home Screen app.',
+  labSaved:'Saved (blood tests: {n})', scanAim:'Fit the QR code inside the frame', scanWrong:'This is not a lab results QR code',
+  camErr:'Cannot open the camera. Allow camera access in the phone\'s Settings, or scan with the phone\'s Camera app.',
+  labRepHead:'Lab results (last {n})', labAll:'All values',
+  labGroups:{sugar:'Blood sugar', lipid:'Cholesterol', kidney:'Kidney', liver:'Liver', salt:'Electrolytes', blood:'Blood count'},
+  labInfo:{
+   glu:'Blood sugar after 8 hours without food. 100–125 is raised (prediabetes); 126 or more on two tests may mean diabetes.',
+   a1c:'Average blood sugar over the last 3 months. 5.7–6.4 is prediabetes; 6.5 or more may mean diabetes. People with diabetes usually aim below 7 (ask your doctor).',
+   tc:'Total cholesterol in the blood. Read it together with LDL and HDL.',
+   tg:'Strongly affected by food and alcohol; fast before the test. High levels raise the risk of heart disease and pancreatitis.',
+   hdl:'"Good" cholesterol: higher is better. Exercise and not smoking raise it.',
+   ldl:'"Bad" cholesterol, the most important number for preventing heart attack and stroke. The target is lower if you have heart disease, stroke, diabetes or kidney disease.',
+   cr:'A kidney test: higher means the kidneys filter less well. It depends on muscle mass, so read it with eGFR.',
+   eg:'How much blood the kidneys filter each minute: higher is better. Below 60 means reduced kidney function; some medicine doses need changing, and take care with pain killers (NSAIDs).',
+   bun:'A waste product cleared by the kidneys. It rises with dehydration or poor kidney function.',
+   ua:'High levels cause gout and kidney stones. Cut down on sugary drinks, alcohol, organ meats and rich broths.',
+   uacr:'Albumin in the urine, an early sign of kidney damage. People with diabetes or high blood pressure should check it every year.',
+   got:'A liver test. It can rise with fatty liver, hepatitis, alcohol or medicines, and also from muscle.',
+   gpt:'A liver test, more specific to the liver than GOT. Often raised by fatty liver, hepatitis, alcohol or medicines.',
+   k:'Potassium. Checked when taking some BP medicines (ACE inhibitors, ARBs, diuretics) or with kidney disease; too high or too low can upset the heart rhythm.',
+   na:'Sodium. When low it can cause dizziness, tiredness or confusion; often from diuretics or drinking too much water.',
+   hb:'The oxygen-carrying protein in red blood cells. Low means anaemia, which can cause tiredness, breathlessness or dizziness.',
+   wbc:'White blood cells fight infection. High may mean infection or inflammation; low makes infections more likely.',
+   plt:'Platelets help blood clot. Low levels cause easy bruising and bleeding.'}
  }
 };
 
 /* ---------------- storage ---------------- */
 var storageOK = true;
-function blank(){ return {v:1, readings:[], profile:{name:'',birth:'',meds:'',ts:130,td:80}, lang:null, theme:'auto', range:7}; }
+function blank(){ return {v:1, readings:[], profile:{name:'',birth:'',meds:'',ts:130,td:80}, lang:null, theme:'auto', range:7, labs:cleanLabs()}; }
+// Lab results: {uid, r:{test:'lo_hi'}, d:{'YYYYMMDD':{test:[value, 'H'|'L'|'']}}}
+function cleanLabs(l){
+  var o = {uid:'', r:{}, d:{}};
+  if (!l || typeof l !== 'object') return o;
+  o.uid = String(l.uid||'').replace(/[^0-9a-f]/g,'').slice(0,8);
+  if (l.r && typeof l.r === 'object') Object.keys(l.r).forEach(function(k){ if (LABK[k] && /^[\d.]*_[\d.]*$/.test(l.r[k])) o.r[k] = l.r[k]; });
+  if (l.d && typeof l.d === 'object') Object.keys(l.d).forEach(function(dk){
+    if (!/^\d{8}$/.test(dk) || !l.d[dk]) return; var day = {};
+    Object.keys(l.d[dk]).forEach(function(k){ var it = l.d[dk][k];
+      if (LABK[k] && Array.isArray(it) && it[0]) day[k] = [String(it[0]).replace(/[^0-9A-Za-z.+\-<>]/g,'').slice(0,12), it[1]==='H'||it[1]==='L' ? it[1] : '']; });
+    if (Object.keys(day).length) o.d[dk] = day;
+  });
+  return o;
+}
+// The tests the clinic can send (same list as LabWall /sendlabs). r = fallback normal range.
+var LAB = [
+  {k:'glu', g:'sugar', zh:'空腹血糖', en:'Fasting glucose', ab:'Glu', u:'mg/dL', r:'70_100'},
+  {k:'a1c', g:'sugar', zh:'糖化血色素', en:'HbA1c', ab:'HbA1c', u:'%', r:'_5.6'},
+  {k:'tc',  g:'lipid', zh:'總膽固醇', en:'Total cholesterol', ab:'TC', u:'mg/dL', r:'_200'},
+  {k:'tg',  g:'lipid', zh:'三酸甘油酯', en:'Triglycerides', ab:'TG', u:'mg/dL', r:'_150'},
+  {k:'hdl', g:'lipid', zh:'好的膽固醇', en:'HDL cholesterol', ab:'HDL', u:'mg/dL', r:'40_'},
+  {k:'ldl', g:'lipid', zh:'壞的膽固醇', en:'LDL cholesterol', ab:'LDL', u:'mg/dL', r:'_130'},
+  {k:'cr',  g:'kidney', zh:'肌酸酐', en:'Creatinine', ab:'Cr', u:'mg/dL', r:'0.5_1.3'},
+  {k:'eg',  g:'kidney', zh:'腎絲球過濾率', en:'Kidney filtration', ab:'eGFR', u:'mL/min/1.73m²', r:'60_'},
+  {k:'bun', g:'kidney', zh:'尿素氮', en:'Urea nitrogen', ab:'BUN', u:'mg/dL', r:'7_20'},
+  {k:'ua',  g:'kidney', zh:'尿酸', en:'Uric acid', ab:'UA', u:'mg/dL', r:'_7'},
+  {k:'uacr',g:'kidney', zh:'尿液微白蛋白', en:'Urine albumin', ab:'UACR', u:'mg/g', r:'_30'},
+  {k:'got', g:'liver', zh:'肝功能', en:'Liver test', ab:'GOT', u:'U/L', r:'_40'},
+  {k:'gpt', g:'liver', zh:'肝功能', en:'Liver test', ab:'GPT', u:'U/L', r:'_40'},
+  {k:'k',   g:'salt', zh:'血鉀', en:'Potassium', ab:'K', u:'mmol/L', r:'3.5_5.1'},
+  {k:'na',  g:'salt', zh:'血鈉', en:'Sodium', ab:'Na', u:'mmol/L', r:'135_145'},
+  {k:'hb',  g:'blood', zh:'血色素', en:'Hemoglobin', ab:'Hb', u:'g/dL', r:'12_16'},
+  {k:'wbc', g:'blood', zh:'白血球', en:'White cells', ab:'WBC', u:'×10³/μL', r:'4_10'},
+  {k:'plt', g:'blood', zh:'血小板', en:'Platelets', ab:'Plt', u:'×10³/μL', r:'150_400'}
+];
+var LABK = {}; LAB.forEach(function(x){ LABK[x.k] = x; });
 function load(){
   var s = null;
   try { s = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(e){ storageOK = false; }
@@ -519,6 +677,7 @@ function load(){
   s.profile = Object.assign(b.profile, s.profile || {});
   if (!s.theme) s.theme = 'auto';
   if (!s.range) s.range = 7;
+  s.labs = cleanLabs(s.labs);
   return s;
 }
 var S = load();
@@ -590,6 +749,7 @@ function showTab(name){
   for (i=0;i<bs.length;i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-tab')===name);
   if (name==='report') renderReport();
   if (name==='history') renderHistory();
+  if (name==='labs') renderLabs();
   window.scrollTo(0,0);
 }
 $('nav').addEventListener('click', function(e){
@@ -876,7 +1036,7 @@ function reportCanvas(){
   var C = {ink:'#1d1b19', muted:'#6b6560', line:'#e4dfd9', soft:'#fdecea', box:'#f6f4f1', sys:'#c0392b', dia:'#2563a8', hi:'#b42318'};
   var FONT = '-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif';
   var W = 1080, M = 56, rowH = 62, chartH = a.length>1 ? 440 : 0;
-  var H = 1600 + chartH + days.length*rowH;   // generous; cropped to the content at the end
+  var H = 1800 + chartH + days.length*rowH + LAB.length*58;   // generous; cropped to the content at the end
   var c = document.createElement('canvas'); c.width = W; c.height = H;
   var g = c.getContext('2d');
   var font = function(px, bold){ g.font = (bold?'700 ':'400 ')+px+'px '+FONT; };
@@ -957,6 +1117,24 @@ function reportCanvas(){
     y += rowH;
   });
   g.fillStyle = C.line; g.fillRect(M, y, W-2*M, 2);
+  // lab results: last 3 test dates
+  var ldays = labDays().slice(0, 3);
+  if (ldays.length){
+    var lkeys = usedKeys(ldays);
+    y += 70; text('🧪 '+t('labRepHead').replace('{n}', ldays.length), M, y, 30, C.ink, true);
+    var lx = [M, M+420, M+620, M+820];
+    y += 50; ldays.forEach(function(dk, i){ text(fDateY(labMs(dk)), lx[i+1], y, 24, C.muted, true); });
+    y += 16;
+    lkeys.forEach(function(k){
+      g.fillStyle = C.line; g.fillRect(M, y, W-2*M, 2);
+      var by = y + 42;
+      text(LABK[k].ab, lx[0], by, 28, C.ink, true); text(rngTxt(k), lx[0]+150, by, 22, C.muted, false, 'left', 250);
+      ldays.forEach(function(dk, i){ var it = S.labs.d[dk][k]; if (!it){ text('–', lx[i+1], by, 28, C.muted); return; }
+        var f = labFlag(k, it); text(it[0]+(f==='H'||f==='L'?' '+f:''), lx[i+1], by, 28, f==='L'?C.dia:f?C.hi:C.ink, !!f); });
+      y += 58;
+    });
+    g.fillStyle = C.line; g.fillRect(M, y, W-2*M, 2);
+  }
   y += 56; text(t('generated')+' '+fDateY(Date.now())+' '+fTime(Date.now())+' · '+t('appName'), M, y, 22, C.muted);
   text('♥ '+t('madeBy'), W-M, y, 24, C.hi, true, 'right');
   var out = document.createElement('canvas'); out.width = W; out.height = Math.ceil(y + 34);
@@ -999,7 +1177,7 @@ function renderReport(){
   var h = '<div class="rep-head"><h2>'+esc(t('report'))+'</h2><div class="muted small">'+who.join(' · ')+'</div></div>'+
     '<div class="muted small">'+esc(t('period'))+'：'+esc(span)+(S.range? '（'+S.range+' '+esc(t('days'))+'）':'')+' · '+esc(t('targetLbl'))+' '+tg.s+'/'+tg.d+'</div>';
   if (p.meds) h += '<div class="small" style="margin-top:6px"><b>'+esc(t('medsLbl'))+'：</b>'+esc(p.meds).replace(/\n/g,'；')+'</div>';
-  if (!a.length){ $('reportCard').innerHTML = P(h) + '<div class="empty">'+esc(t('noDataRange'))+'</div>'; return; }
+  if (!a.length){ $('reportCard').innerHTML = P(h + '<div class="empty">'+esc(t('noDataRange'))+'</div>' + labReportHTML(3)); return; }
   h += '<div class="stats">'+
     '<div class="stat main"><div class="k">'+esc(t('avg'))+'（'+st.n+' '+esc(t('readings'))+'）</div><div class="v"'+hiCls(st.s,st.d)+'>'+bpTxt(st.s,st.d)+' <small>mmHg</small></div></div>'+
     '<div class="stat"><div class="k">☀ '+esc(t('amAvg'))+'</div><div class="v"'+hiCls(st.amS,st.amD)+'>'+bpTxt(st.amS,st.amD)+'</div><div class="k">'+st.amN+' '+esc(t('readings'))+'</div></div>'+
@@ -1016,6 +1194,7 @@ function renderReport(){
     '<div class="legend"><span><i style="background:var(--sys)"></i>'+esc(t('lgSys'))+'</span><span><i style="background:var(--dia)"></i>'+esc(t('lgDia'))+'</span><span><i style="background:repeating-linear-gradient(90deg,var(--muted) 0 4px,transparent 4px 7px)"></i>'+esc(t('lgTarget'))+'</span></div>'+svg;
   h += '<h3 style="font-size:16px;margin:14px 0 4px">'+esc(t('dailyTable'))+'</h3>'+
     '<table class="days"><thead><tr><th>'+esc(t('date'))+'</th><th>☀ '+esc(t('amShort'))+'</th><th>☾ '+esc(t('pmShort'))+'</th><th style="text-align:left">'+esc(t('notesLbl'))+'</th></tr></thead><tbody>'+dailyRows(a)+'</tbody></table>'+
+    labReportHTML(3)+
     '<p class="small muted" style="margin:10px 0 0;text-align:right">'+esc(t('generated'))+' '+fDateY(Date.now())+' '+fTime(Date.now())+' · '+esc(t('appName'))+' · '+esc(t('madeBy'))+'</p>';
   $('reportCard').innerHTML = P(h);
 }
@@ -1033,6 +1212,7 @@ function summaryText(){
   if (st.max) L.push(t('maxBp')+'：'+st.max.s+'/'+st.max.d+'（'+fDate(st.max.t)+' '+fTime(st.max.t)+'）');
   L.push(t('overTarget')+'：'+st.overPct+'%');
   if (p.meds) L.push(t('medsLbl')+'：'+p.meds.replace(/\n/g,'；'));
+  var lab = labSummaryLines(); if (lab.length){ L.push(''); L = L.concat(lab); }
   L.push('');
   a.slice().reverse().forEach(function(r){ var pl = pulseLevel(r.p);
     L.push(fDate(r.t)+' '+fTime(r.t)+'  '+r.s+'/'+r.d+(r.p?'  ♥'+r.p+(pl?' ('+t('plv')[pl]+')':''):'')+(r.irr?'  ⚠'+t('irrLbl'):'')+(r.sym?'  🚑'+t('symLbl'):'')+((r.note||r.tags)?'  '+noteText(r):'')); });
@@ -1095,7 +1275,7 @@ bindProfile('pfName','name'); bindProfile('pfBirth','birth'); bindProfile('pfMed
 $('exportBtn').addEventListener('click', function(){ exportBackup(); });
 function exportBackup(){
   S.lastBackup = Date.now(); S.backupSnooze = 0; persist();
-  saveFile('BP-backup-'+stamp()+'.json', 'application/json', JSON.stringify({app:'bplog', v:1, exported:new Date().toISOString(), profile:S.profile, readings:S.readings}));
+  saveFile('BP-backup-'+stamp()+'.json', 'application/json', JSON.stringify({app:'bplog', v:1, exported:new Date().toISOString(), profile:S.profile, readings:S.readings, labs:S.labs}));
   renderNotices();
 }
 $('importBtn').addEventListener('click', function(){ $('importFile').click(); });
@@ -1107,6 +1287,8 @@ $('importFile').addEventListener('change', function(){
       var have={}; S.readings.forEach(function(r){ have[r.id]=1; }); var n=0;
       o.readings.forEach(function(r){ if (r && r.id && !have[r.id] && +r.t && +r.s && +r.d){ S.readings.push({id:String(r.id),t:+r.t,s:+r.s,d:+r.d,p:r.p?+r.p:undefined,med:!!r.med||undefined,irr:!!r.irr||undefined,note:r.note?String(r.note).slice(0,200):undefined,sym:typeof r.sym==='boolean'?r.sym:undefined,tags:Array.isArray(r.tags)?r.tags.filter(function(i){ return i>=0 && i<6; }).map(Number):undefined}); n++; } });
       if (o.profile && !S.profile.name) S.profile = Object.assign(S.profile, o.profile);
+      if (o.labs){ var lb = cleanLabs(o.labs); Object.keys(lb.r).forEach(function(k){ if (!S.labs.r[k]) S.labs.r[k] = lb.r[k]; });
+        Object.keys(lb.d).forEach(function(dk){ S.labs.d[dk] = Object.assign({}, lb.d[dk], S.labs.d[dk]||{}); }); if (!S.labs.uid) S.labs.uid = lb.uid; }
       persist(); fillProfile(); renderAll(); toast(t('imported').replace('{n}', n), 3000);
     } catch(e){ toast(t('importErr'), 3000); }
   };
@@ -1114,7 +1296,7 @@ $('importFile').addEventListener('change', function(){
 });
 $('wipeBtn').addEventListener('click', function(){
   if (!confirm(t('confirmWipe'))) return; if (!confirm(t('confirmWipe2'))) return;
-  S.readings=[]; persist(); renderAll(); toast(t('deleted'));
+  S.readings=[]; S.labs=cleanLabs(); persist(); renderAll(); toast(t('deleted'));
 });
 function renderTheme(){
   var opts=[['auto',t('themeAuto')],['light',t('themeLight')],['dark',t('themeDark')]];
@@ -1201,12 +1383,214 @@ function renderWeek(){
   $('weekCard').innerHTML = h;
 }
 
-function renderAll(){ renderRecent(); renderNotices(); renderWeek(); if (current==='history') renderHistory(); if (current==='report') renderReport(); }
+/* ================= labs ================= */
+function labDays(){ return Object.keys(S.labs.d).sort().reverse(); }           // newest first
+function labMs(dk){ return new Date(+dk.slice(0,4), +dk.slice(4,6)-1, +dk.slice(6,8)).getTime(); }
+function labRange(k){
+  var m = /^([\d.]*)_([\d.]*)$/.exec(S.labs.r[k] || LABK[k].r || '');
+  return m ? {lo: m[1]==='' ? null : +m[1], hi: m[2]==='' ? null : +m[2]} : {lo:null, hi:null};
+}
+function rngTxt(k){ var r = labRange(k); return r.lo!=null && r.hi!=null ? r.lo+'–'+r.hi : r.hi!=null ? '≤'+r.hi : r.lo!=null ? '≥'+r.lo : ''; }
+function labTgt(k){ var v = k==='ldl' ? S.profile.ldlT : k==='a1c' ? S.profile.a1cT : ''; v = parseFloat(v); return isNaN(v) ? null : v; }
+// 'H' / 'L' from the lab, else worked out from the range; 'T' = within range but at or above the doctor's target.
+function labFlag(k, it){
+  var v = parseFloat(it[0]), f = it[1];
+  if (!f && !isNaN(v)){ var r = labRange(k); if (r.hi!=null && v>r.hi) f = 'H'; else if (r.lo!=null && v<r.lo) f = 'L'; }
+  var tg = labTgt(k); if (f!=='H' && f!=='L' && tg!=null && !isNaN(v) && v>=tg) f = 'T';
+  return f || '';
+}
+function flagBadge(f){ var c = {H:'high', L:'low', T:'high'}[f] || 'ok'; return '<span class="lv lv-'+c+'">'+esc(t('flag'+(f||'N')))+'</span>'; }
+function labName(k){ var x = LABK[k]; return lang==='zh' ? x.zh : x.en; }
+function labSeries(k){ return labDays().filter(function(dk){ return S.labs.d[dk][k]; }).map(function(dk){ return {dk:dk, it:S.labs.d[dk][k]}; }); }  // newest first
+function usedKeys(days){ return LAB.filter(function(x){ return days.some(function(dk){ return S.labs.d[dk][x.k]; }); }).map(function(x){ return x.k; }); }
+
+function labChart(k, W, H){
+  var pts = labSeries(k).slice().reverse().filter(function(p){ return !isNaN(parseFloat(p.it[0])); });
+  if (pts.length < 2) return '';
+  var r = labRange(k), tg = labTgt(k), vals = pts.map(function(p){ return parseFloat(p.it[0]); });
+  var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+  [r.lo, r.hi, tg].forEach(function(v){ if (v!=null){ lo = Math.min(lo, v); hi = Math.max(hi, v); } });
+  var padv = (hi-lo)*0.15 || Math.abs(hi)*0.1 || 1; lo -= padv; hi += padv;
+  var spark = H < 60, L = spark ? 3 : 24, R = spark ? 3 : 24, Tp = spark ? 3 : 18, B = spark ? 3 : 22;
+  var t0 = labMs(pts[0].dk), t1 = labMs(pts[pts.length-1].dk); if (t1===t0) t1 = t0+1;
+  var x = function(ms){ return L + (ms-t0)/(t1-t0)*(W-L-R); }, y = function(v){ return Tp + (hi-v)/(hi-lo)*(H-Tp-B); };
+  var g = '';
+  if (r.lo!=null || r.hi!=null){ var yt = y(r.hi!=null ? r.hi : hi), yb = y(r.lo!=null ? r.lo : lo); g += '<rect x="'+L+'" y="'+yt.toFixed(1)+'" width="'+(W-L-R)+'" height="'+Math.max(0,yb-yt).toFixed(1)+'" fill="var(--ok-bg)"/>'; }
+  if (tg!=null) g += '<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(tg).toFixed(1)+'" y2="'+y(tg).toFixed(1)+'" stroke="var(--vhigh)" stroke-dasharray="5 4" stroke-width="1.5"/>';
+  g += '<polyline points="'+pts.map(function(p){ return x(labMs(p.dk)).toFixed(1)+','+y(parseFloat(p.it[0])).toFixed(1); }).join(' ')+'" fill="none" stroke="var(--ink)" stroke-width="'+(spark?1.5:2)+'" opacity=".6"/>';
+  pts.forEach(function(p){ var f = labFlag(k, p.it), col = f==='L' ? 'var(--low)' : f ? 'var(--vhigh)' : 'var(--ok)', px = x(labMs(p.dk)), py = y(parseFloat(p.it[0]));
+    g += '<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="'+(spark?2.5:4.5)+'" fill="'+col+'"/>';
+    if (!spark){ var d = new Date(labMs(p.dk));
+      g += '<text x="'+px.toFixed(1)+'" y="'+(py-8).toFixed(1)+'" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">'+esc(p.it[0])+'</text>'+
+           '<text x="'+px.toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" font-size="11" fill="var(--muted)">'+(String(d.getFullYear()).slice(2))+'/'+(d.getMonth()+1)+'</text>'; } });
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="'+(spark?W:'100%')+'" '+(spark?'height="'+H+'"':'')+' class="'+(spark?'spark':'chart')+'" aria-hidden="true">'+g+'</svg>';
+}
+
+var labOpen = {};
+function renderLabs(){
+  var days = labDays();
+  if (!days.length){ $('labBody').innerHTML = '<div class="card"><div class="empty">'+esc(t('labEmpty'))+'</div></div>'; fillLabTgt(); return; }
+  var h = '<div class="card"><h2>'+esc(t('labLatest'))+'：'+fDateY(labMs(days[0]))+'</h2><div class="small muted">'+esc(t('labTimes').replace('{n}', days.length))+' · '+esc(t('labTap'))+'</div>';
+  var grp = '';
+  usedKeys(days).forEach(function(k){
+    var x = LABK[k], s = labSeries(k), cur = s[0], prev = s[1], f = labFlag(k, cur.it);
+    if (x.g !== grp){ grp = x.g; h += '<div class="lab-grp">'+esc(t('labGroups')[grp])+'</div>'; }
+    var arrow = '';
+    if (prev){ var a = parseFloat(cur.it[0]), b = parseFloat(prev.it[0]); if (!isNaN(a) && !isNaN(b)) arrow = a>b ? ' ↑' : a<b ? ' ↓' : ' →'; }
+    h += '<div class="lab-row" data-lab="'+k+'"><div class="top"><div class="nm">'+esc(labName(k))+'<small>'+esc(x.ab)+'</small></div>'+
+      '<div class="val'+(f==='L'?' vL':f?' vH':'')+'">'+esc(cur.it[0])+' <small>'+esc(x.u)+'</small></div></div>'+
+      '<div class="sub">'+flagBadge(f)+(cur.dk!==days[0] ? '<span>'+fDateY(labMs(cur.dk))+'</span>' : '')+
+      (prev ? '<span>'+esc(t('labPrev'))+' '+esc(prev.it[0])+esc(arrow)+'</span>' : '')+'<span class="spark">'+labChart(k, 90, 30)+'</span></div>';
+    if (labOpen[k]){
+      var tg = labTgt(k);
+      h += '<div class="lab-detail"><p>'+esc(t('labInfo')[k])+'</p><p class="small"><b>'+esc(t('labRange'))+'：</b>'+esc(rngTxt(k)||'–')+' '+esc(x.u)+
+        (tg!=null ? '　<b>'+esc(t('labTargetLbl'))+'：</b>&lt; '+tg : '')+'</p>'+labChart(k, 340, 150)+
+        '<p class="small" style="margin-top:6px"><b>'+esc(t('labAll'))+'：</b>'+s.map(function(p){ var ff = labFlag(k, p.it);
+          return fDateY(labMs(p.dk))+' <b class="'+(ff==='L'?'vL':ff?'vH':'')+'">'+esc(p.it[0])+'</b>'; }).join('、')+'</p></div>';
+    }
+    h += '</div>';
+  });
+  h += '</div><div class="card"><h2>'+esc(t('labDates'))+'</h2><ul class="datelist">'+days.map(function(dk){
+    return '<li><span>'+fDateY(labMs(dk))+' <span class="muted small">· '+Object.keys(S.labs.d[dk]).length+'</span></span><button type="button" class="del" data-labdel="'+dk+'" aria-label="delete" style="border:0;background:none;color:var(--muted);font-size:22px;cursor:pointer">🗑</button></li>'; }).join('')+'</ul></div>';
+  $('labBody').innerHTML = P(h);
+  fillLabTgt();
+}
+$('labBody').addEventListener('click', function(e){
+  var d = e.target.closest('[data-labdel]');
+  if (d){ var dk = d.getAttribute('data-labdel'); if (confirm(t('labDelQ').replace('{d}', fDateY(labMs(dk))))){ delete S.labs.d[dk]; persist(); renderLabs(); } return; }
+  if (e.target.closest('.lab-detail')) return;
+  var r = e.target.closest('[data-lab]'); if (!r) return;
+  var k = r.getAttribute('data-lab'); labOpen[k] = !labOpen[k]; renderLabs();
+});
+function fillLabTgt(){ if (document.activeElement!==$('pfLdlT')) $('pfLdlT').value = S.profile.ldlT||''; if (document.activeElement!==$('pfA1cT')) $('pfA1cT').value = S.profile.a1cT||''; }
+[['pfLdlT','ldlT'],['pfA1cT','a1cT']].forEach(function(q){
+  $(q[0]).addEventListener('input', function(){ var v = this.value.replace(/[^\d.]/g,''); this.value = v; S.profile[q[1]] = v; persist(); renderLabs(); });
+});
+
+/* QR payload: <app url>#lab1~<id>~<test=lo_hi,...>~<YYYYMMDD>.<test=value[!H|!L],...>~... (made by LabWall /sendlabs) */
+function parseLabFrag(s){
+  var i = String(s||'').indexOf('#lab1~'); if (i < 0) return null;
+  var parts = String(s).slice(i+1).split('~'); if (parts.length < 4) return null;
+  var o = {uid: parts[1].replace(/[^0-9a-f]/g,'').slice(0,8), r:{}, d:{}, n:0};
+  parts[2].split(',').forEach(function(x){ var m = /^([a-z0-9]+)=([\d.]*_[\d.]*)$/.exec(x); if (m && LABK[m[1]]) o.r[m[1]] = m[2]; });
+  for (var j=3; j<parts.length; j++){
+    var m = /^(\d{8})\.(.*)$/.exec(parts[j]); if (!m) continue;
+    var day = {};
+    m[2].split(',').forEach(function(x){
+      var q = /^([a-z0-9]+)=([^!]*)(?:!([HL]))?$/.exec(x); if (!q || !LABK[q[1]]) return;
+      var v; try { v = decodeURIComponent(q[2]); } catch(e){ return; }
+      v = v.replace(/[^0-9A-Za-z.+\-<>]/g,'').slice(0,12); if (!v) return;
+      day[q[1]] = [v, q[3]||'']; o.n++;
+    });
+    if (Object.keys(day).length) o.d[m[1]] = day;
+  }
+  return Object.keys(o.d).length ? o : null;
+}
+var pendingLab = null;
+function showLabImport(o){
+  pendingLab = o;
+  var ds = Object.keys(o.d).sort().reverse();
+  var diff = S.labs.uid && o.uid && S.labs.uid !== o.uid && labDays().length;
+  var h = '<h2>🧪 '+esc(t('labImpHead'))+'</h2><p>'+esc(t('labImpMsg').replace('{n}', ds.length).replace('{k}', o.n))+'</p>'+
+    '<ul class="datelist">'+ds.map(function(dk){ var ks = Object.keys(o.d[dk]);
+      return '<li><span><b>'+fDateY(labMs(dk))+'</b><br><span class="small muted">'+ks.slice(0,6).map(function(k){ return esc(LABK[k].ab)+' '+esc(o.d[dk][k][0]); }).join('、')+(ks.length>6?' …':'')+'</span></span></li>'; }).join('')+'</ul>'+
+    (diff ? '<div class="callout" style="margin-top:10px">'+esc(t('labImpDiff'))+'</div>' : '')+
+    (isIOS && !standalone ? '<p class="small" style="margin:10px 0 0">'+esc(t('labImpIOS'))+'</p>' : '')+
+    '<div class="btns" style="margin-top:14px"><button type="button" class="btn" id="labImpNo">'+esc(t('cancel'))+'</button>'+
+    '<button type="button" class="btn" id="labImpYes" style="background:var(--accent);color:var(--accent-ink);border-color:var(--accent)">'+esc(t('labImpSave'))+'</button></div>';
+  $('labImpBody').innerHTML = P(h); $('labImp').classList.add('on'); $('labImp').scrollTop = 0;
+}
+$('labImp').addEventListener('click', function(e){
+  if (e.target.id === 'labImpNo'){ pendingLab = null; $('labImp').classList.remove('on'); }
+  if (e.target.id === 'labImpYes' && pendingLab){
+    var o = pendingLab; pendingLab = null;
+    Object.keys(o.r).forEach(function(k){ S.labs.r[k] = o.r[k]; });
+    Object.keys(o.d).forEach(function(dk){ S.labs.d[dk] = Object.assign(S.labs.d[dk]||{}, o.d[dk]); });
+    if (o.uid) S.labs.uid = o.uid;
+    persist(); $('labImp').classList.remove('on'); showTab('labs');
+    toast(t('labSaved').replace('{n}', Object.keys(o.d).length), 3000);
+  }
+});
+
+/* in-app scanner: iPhone home-screen apps have their own storage, so they must scan inside the app */
+var scan = {stream:null, timer:0, det:null, busy:false};
+var scanCanvas = document.createElement('canvas');
+function loadJsQR(){
+  if (window.jsQR) return Promise.resolve();
+  return new Promise(function(res, rej){ var s = document.createElement('script'); s.src = 'vendor/jsQR.js'; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+}
+function openScanner(){
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ toast(t('camErr'), 5000); return; }
+  $('scanMsg').textContent = t('scanAim'); $('scanOverlay').classList.add('on');
+  scan.det = null;
+  try { if ('BarcodeDetector' in window) scan.det = new BarcodeDetector({formats:['qr_code']}); } catch(e){ scan.det = null; }
+  var ready = scan.det ? Promise.resolve() : loadJsQR();
+  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}, width:{ideal:1280}, height:{ideal:1280}}, audio:false}).then(function(st){
+    if (!$('scanOverlay').classList.contains('on')){ st.getTracks().forEach(function(tr){ tr.stop(); }); return; }
+    scan.stream = st; var v = $('scanVideo'); v.srcObject = st; v.play().catch(function(){});
+    ready.then(scanTick, function(){ closeScanner(); toast(t('camErr'), 5000); });
+  }).catch(function(){ closeScanner(); toast(t('camErr'), 5000); });
+}
+function scanTick(){
+  if (!scan.stream) return;
+  var v = $('scanVideo');
+  if (v.readyState >= 2 && v.videoWidth && !scan.busy){
+    if (scan.det){
+      scan.busy = true;
+      scan.det.detect(v).then(function(c){ scan.busy = false; if (c && c.length) gotCode(c[0].rawValue); }, function(){ scan.busy = false; });
+    } else if (window.jsQR){
+      var w = v.videoWidth, h = v.videoHeight, sc = Math.min(1, 1000/Math.max(w,h)); w = Math.round(w*sc); h = Math.round(h*sc);
+      scanCanvas.width = w; scanCanvas.height = h;
+      var g = scanCanvas.getContext('2d', {willReadFrequently:true}); g.drawImage(v, 0, 0, w, h);
+      var r = window.jsQR(g.getImageData(0,0,w,h).data, w, h, {inversionAttempts:'dontInvert'});
+      if (r && r.data) gotCode(r.data);
+    }
+  }
+  if (scan.stream) scan.timer = setTimeout(scanTick, 120);
+}
+function gotCode(txt){
+  var o = parseLabFrag(txt);
+  if (!o){ $('scanMsg').textContent = t('scanWrong'); return; }
+  closeScanner(); showLabImport(o);
+}
+function closeScanner(){
+  clearTimeout(scan.timer);
+  if (scan.stream){ scan.stream.getTracks().forEach(function(tr){ tr.stop(); }); scan.stream = null; }
+  $('scanVideo').srcObject = null; $('scanOverlay').classList.remove('on');
+}
+$('scanBtn').addEventListener('click', openScanner);
+$('scanClose').addEventListener('click', closeScanner);
+
+// Lab table for the doctor page: last n test dates, tests as rows.
+function labReportHTML(n){
+  var days = labDays().slice(0, n); if (!days.length) return '';
+  var keys = usedKeys(days);
+  return '<h3 style="font-size:16px;margin:16px 0 4px">🧪 '+esc(t('labRepHead').replace('{n}', days.length))+'</h3>'+
+    '<table class="labt"><thead><tr><th></th>'+days.map(function(dk){ var d = new Date(labMs(dk)); return '<th>'+d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+'</th>'; }).join('')+'</tr></thead><tbody>'+
+    keys.map(function(k){ return '<tr><td>'+esc(LABK[k].ab)+' <span class="muted small">'+esc(rngTxt(k))+'</span></td>'+days.map(function(dk){
+      var it = S.labs.d[dk][k]; if (!it) return '<td class="muted">–</td>';
+      var f = labFlag(k, it); return '<td class="'+(f==='L'?'vL':f?'vH':'')+'" style="'+(f?'font-weight:800':'')+'">'+esc(it[0])+(f==='H'||f==='L'?' '+f:'')+'</td>'; }).join('')+'</tr>'; }).join('')+
+    '</tbody></table>';
+}
+function labSummaryLines(){
+  var days = labDays(); if (!days.length) return [];
+  var dk = days[0], L = [];
+  L.push(t('labLatest')+'（'+fDateY(labMs(dk))+'）：');
+  L.push(usedKeys([dk]).map(function(k){ var it = S.labs.d[dk][k], f = labFlag(k, it);
+    return LABK[k].ab+' '+it[0]+(f==='H'?'↑':f==='L'?'↓':f==='T'?'（'+t('flagT')+'）':''); }).join('、'));
+  return L;
+}
+
+function renderAll(){ renderRecent(); renderNotices(); renderWeek(); if (current==='history') renderHistory(); if (current==='report') renderReport(); if (current==='labs') renderLabs(); }
 
 /* init */
 fillProfile(); resetTime(); $('inMed').checked = medDefault();
 applyLang();
 if (!storageOK) toast(t('storageErr'), 6000);
+// Opened from the lab QR (phone camera): read the results, then wipe them from the address bar and history.
+(function(){ var o = parseLabFrag(location.href); if (!o) return;
+  try { history.replaceState(null, '', location.pathname + location.search); } catch(e){}
+  showLabImport(o); })();
 if ('serviceWorker' in navigator && location.protocol !== 'file:'){
   window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
 }
