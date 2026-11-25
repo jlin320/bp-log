@@ -498,8 +498,8 @@ var T = {
   labImpIOS:'iPhone：如果您已把 App 加到主畫面，請改從主畫面的 App 打開「檢驗」→「掃描」。在這裡存的結果，不會出現在主畫面的 App 裡。',
   labSaved:'已存 {n} 次檢驗', scanAim:'把 QR Code 放進框框裡', scanWrong:'這不是檢驗結果的 QR Code',
   camErr:'無法開啟相機。請到手機「設定」允許使用相機，或改用手機的相機 App 掃描。',
-  labRepHead:'檢驗結果（最近 {n} 次）', labAll:'全部數值',
-  labGroups:{sugar:'血糖', lipid:'血脂', kidney:'腎臟', liver:'肝臟', salt:'電解質', blood:'血液'},
+  labRepHead:'檢驗結果（每項最近 {n} 次）', labAll:'全部數值', labCols:['最新','前次','再前次'],
+  labGroups:{sugar:'血糖', lipid:'血脂', kidney:'腎臟', liver:'肝臟', salt:'電解質', bone:'鈣、磷與骨頭', nutri:'營養', blood:'血液', iron:'鐵質（貧血）'},
   labInfo:{
    glu:'空腹 8 小時後的血糖。100–125 是血糖偏高（糖尿病前期），兩次 ≥126 可能是糖尿病。',
    a1c:'近 3 個月的平均血糖。5.7–6.4 是糖尿病前期，≥6.5 可能是糖尿病。糖尿病的人通常目標低於 7（依醫師建議）。',
@@ -518,7 +518,20 @@ var T = {
    na:'血鈉。太低時會頭暈、倦怠、意識不清，常見於利尿劑或喝太多水。',
    hb:'紅血球裡帶氧氣的蛋白質。太低是貧血，可能會累、喘、頭暈。',
    wbc:'白血球，對抗感染。太高可能有感染或發炎，太低容易感染。',
-   plt:'血小板，幫助止血。太低容易瘀青、出血。'}
+   plt:'血小板，幫助止血。太低容易瘀青、出血。',
+   bunp:'洗腎結束時抽的尿素氮。和洗腎前的 BUN 一起算出這次洗腎清得乾不乾淨（URR）。',
+   urr:'由洗腎前、後的 BUN 算出，代表一次洗腎清掉多少廢物，一般目標 65% 以上。偏低時可能要調整洗腎時間或血管通路，請和醫師討論。',
+   mg:'血鎂。腎功能差時容易偏高；太低可能抽筋或心律不整。',
+   ca:'血鈣。要和血磷、副甲狀腺素一起看，和骨頭強度及血管鈣化有關。',
+   p:'血磷。腎臟排不掉時會升高，造成皮膚癢、骨頭變弱、血管鈣化。少吃加工食品、內臟、堅果、可樂和濃湯，並照醫師指示「隨餐」吃降磷藥。',
+   alp:'和骨頭及肝膽有關。腎臟病人升高時，可能是副甲狀腺亢進造成骨頭變化。',
+   pth:'副甲狀腺素。太高會讓骨頭流失鈣、血管鈣化。洗腎病人的目標範圍和一般人不同，請依醫師建議。洗腎病人通常每 3 個月（3、6、9、12 月）檢查一次。',
+   alb:'白蛋白，反映營養狀況。偏低代表蛋白質吃不夠或身體有發炎；洗腎的人蛋白質要吃足（依營養師建議）。',
+   hct:'紅血球佔血液的比例，和血色素一起看有沒有貧血。',
+   fe:'血中的鐵，要和總鐵結合能力、鐵蛋白一起看。',
+   tibc:'血液能攜帶鐵的能力，用來算鐵飽和度。缺鐵時會升高。',
+   tsat:'由血清鐵 ÷ 總鐵結合能力算出，代表可用的鐵夠不夠。腎臟病貧血時通常希望高於 20%（依醫師建議）。',
+   fer:'身體儲存的鐵。太低代表缺鐵；發炎時也會升高。打紅血球生成素（EPO）的人要有足夠的鐵才有效。洗腎病人的鐵質檢查通常每 3 個月（3、6、9、12 月）一次。'}
  },
  en: {
   appName:'Home BP Log', sys:'Systolic (top)', dia:'Diastolic (bottom)', pulse:'Pulse', bpm:'bpm', time:'Time',
@@ -605,8 +618,8 @@ var T = {
   labImpIOS:'iPhone: if you added the app to your Home Screen, open it from there and use Labs → Scan. Results saved here will not appear in the Home Screen app.',
   labSaved:'Saved (blood tests: {n})', scanAim:'Fit the QR code inside the frame', scanWrong:'This is not a lab results QR code',
   camErr:'Cannot open the camera. Allow camera access in the phone\'s Settings, or scan with the phone\'s Camera app.',
-  labRepHead:'Lab results (last {n})', labAll:'All values',
-  labGroups:{sugar:'Blood sugar', lipid:'Cholesterol', kidney:'Kidney', liver:'Liver', salt:'Electrolytes', blood:'Blood count'},
+  labRepHead:'Lab results (last {n} of each test)', labAll:'All values', labCols:['Latest','Previous','Before'],
+  labGroups:{sugar:'Blood sugar', lipid:'Cholesterol', kidney:'Kidney', liver:'Liver', salt:'Electrolytes', bone:'Calcium, phosphorus & bone', nutri:'Nutrition', blood:'Blood count', iron:'Iron (anaemia)'},
   labInfo:{
    glu:'Blood sugar after 8 hours without food. 100–125 is raised (prediabetes); 126 or more on two tests may mean diabetes.',
    a1c:'Average blood sugar over the last 3 months. 5.7–6.4 is prediabetes; 6.5 or more may mean diabetes. People with diabetes usually aim below 7 (ask your doctor).',
@@ -625,7 +638,20 @@ var T = {
    na:'Sodium. When low it can cause dizziness, tiredness or confusion; often from diuretics or drinking too much water.',
    hb:'The oxygen-carrying protein in red blood cells. Low means anaemia, which can cause tiredness, breathlessness or dizziness.',
    wbc:'White blood cells fight infection. High may mean infection or inflammation; low makes infections more likely.',
-   plt:'Platelets help blood clot. Low levels cause easy bruising and bleeding.'}
+   plt:'Platelets help blood clot. Low levels cause easy bruising and bleeding.',
+   bunp:'Urea nitrogen taken at the end of dialysis. With the BUN before dialysis it shows how well that session cleaned the blood (URR).',
+   urr:'Worked out from BUN before and after dialysis: how much waste one session removes. The usual goal is 65% or more. If it is low, talk to your doctor about dialysis time or your access.',
+   mg:'Magnesium. Often high with poor kidney function; low levels can cause cramps or an irregular heartbeat.',
+   ca:'Calcium. Read it with phosphorus and parathyroid hormone; it affects bone strength and calcium build-up in blood vessels.',
+   p:'Phosphorus. It builds up when the kidneys cannot clear it, causing itching, weak bones and hardened blood vessels. Cut down on processed food, organ meats, nuts, cola and rich broths, and take phosphate binders with meals as prescribed.',
+   alp:'Linked to bone and liver. In kidney disease a rise can mean bone changes from an overactive parathyroid.',
+   pth:'Parathyroid hormone. Too high pulls calcium from bone and hardens blood vessels. Dialysis patients have a different target range; follow your doctor\'s advice. On dialysis it is usually checked every 3 months (March, June, September, December).',
+   alb:'Albumin shows nutrition. Low levels mean too little protein or inflammation; people on dialysis need enough protein (ask the dietitian).',
+   hct:'The share of the blood made of red cells. Read it with hemoglobin to check for anaemia.',
+   fe:'Iron in the blood. Read it with iron-binding capacity and ferritin.',
+   tibc:'How much iron the blood can carry; used to work out iron saturation. It rises when iron is low.',
+   tsat:'Iron ÷ iron-binding capacity: whether there is enough usable iron. With kidney anaemia the goal is usually above 20% (ask your doctor).',
+   fer:'The body\'s iron store. Low means iron deficiency; it also rises with inflammation. EPO injections need enough iron to work. On dialysis, iron tests are usually done every 3 months (March, June, September, December).'}
  }
 };
 
@@ -657,16 +683,37 @@ var LAB = [
   {k:'cr',  g:'kidney', zh:'肌酸酐', en:'Creatinine', ab:'Cr', u:'mg/dL', r:'0.5_1.3'},
   {k:'eg',  g:'kidney', zh:'腎絲球過濾率', en:'Kidney filtration', ab:'eGFR', u:'mL/min/1.73m²', r:'60_'},
   {k:'bun', g:'kidney', zh:'尿素氮', en:'Urea nitrogen', ab:'BUN', u:'mg/dL', r:'7_20'},
+  {k:'bunp',g:'kidney', zh:'透析後尿素氮', en:'Urea nitrogen after dialysis', ab:'BUN post', u:'mg/dL', r:''},
+  {k:'urr', g:'kidney', zh:'透析清除率', en:'Dialysis clearance', ab:'URR', u:'%', r:'65_'},
   {k:'ua',  g:'kidney', zh:'尿酸', en:'Uric acid', ab:'UA', u:'mg/dL', r:'_7'},
   {k:'uacr',g:'kidney', zh:'尿液微白蛋白', en:'Urine albumin', ab:'UACR', u:'mg/g', r:'_30'},
-  {k:'got', g:'liver', zh:'肝功能', en:'Liver test', ab:'GOT', u:'U/L', r:'_40'},
-  {k:'gpt', g:'liver', zh:'肝功能', en:'Liver test', ab:'GPT', u:'U/L', r:'_40'},
   {k:'k',   g:'salt', zh:'血鉀', en:'Potassium', ab:'K', u:'mmol/L', r:'3.5_5.1'},
   {k:'na',  g:'salt', zh:'血鈉', en:'Sodium', ab:'Na', u:'mmol/L', r:'135_145'},
+  {k:'mg',  g:'salt', zh:'血鎂', en:'Magnesium', ab:'Mg', u:'mg/dL', r:'1.7_2.6'},
+  {k:'ca',  g:'bone', zh:'血鈣', en:'Calcium', ab:'Ca', u:'mg/dL', r:'8.6_10.3'},
+  {k:'p',   g:'bone', zh:'血磷', en:'Phosphorus', ab:'P', u:'mg/dL', r:'2.5_4.5'},
+  {k:'alp', g:'bone', zh:'鹼性磷酸酶', en:'Alkaline phosphatase', ab:'ALP', u:'U/L', r:'40_130'},
+  {k:'pth', g:'bone', zh:'副甲狀腺素', en:'Parathyroid hormone', ab:'iPTH', u:'pg/mL', r:'15_65'},
+  {k:'alb', g:'nutri', zh:'白蛋白', en:'Albumin', ab:'Alb', u:'g/dL', r:'3.5_5.2'},
+  {k:'got', g:'liver', zh:'肝功能', en:'Liver test', ab:'GOT', u:'U/L', r:'_40'},
+  {k:'gpt', g:'liver', zh:'肝功能', en:'Liver test', ab:'GPT', u:'U/L', r:'_40'},
   {k:'hb',  g:'blood', zh:'血色素', en:'Hemoglobin', ab:'Hb', u:'g/dL', r:'12_16'},
+  {k:'hct', g:'blood', zh:'血球比容', en:'Hematocrit', ab:'Hct', u:'%', r:'36_48'},
   {k:'wbc', g:'blood', zh:'白血球', en:'White cells', ab:'WBC', u:'×10³/μL', r:'4_10'},
-  {k:'plt', g:'blood', zh:'血小板', en:'Platelets', ab:'Plt', u:'×10³/μL', r:'150_400'}
+  {k:'plt', g:'blood', zh:'血小板', en:'Platelets', ab:'Plt', u:'×10³/μL', r:'150_400'},
+  {k:'fe',  g:'iron', zh:'血清鐵', en:'Iron', ab:'Fe', u:'μg/dL', r:'50_170'},
+  {k:'tibc',g:'iron', zh:'總鐵結合能力', en:'Iron-binding capacity', ab:'TIBC', u:'μg/dL', r:'250_450'},
+  {k:'tsat',g:'iron', zh:'鐵飽和度', en:'Iron saturation', ab:'TSAT', u:'%', r:'20_50'},
+  {k:'fer', g:'iron', zh:'鐵蛋白', en:'Ferritin', ab:'Ferritin', u:'ng/mL', r:'30_400'}
 ];
+// Worked out in the app (keeps the QR small): URR from BUN before/after dialysis, TSAT from Fe/TIBC.
+function addDerived(day){
+  var n = function(k){ var v = day[k] ? parseFloat(day[k][0]) : NaN; return isNaN(v) ? null : v; };
+  var pre = n('bun'), post = n('bunp'), fe = n('fe'), tibc = n('tibc');
+  if (!day.urr && pre && post!=null && post < pre) day.urr = [String(Math.round((pre-post)/pre*100)), ''];
+  if (!day.tsat && fe!=null && tibc) day.tsat = [String(Math.round(fe/tibc*1000)/10), ''];
+  return day;
+}
 var LABK = {}; LAB.forEach(function(x){ LABK[x.k] = x; });
 function load(){
   var s = null;
@@ -1036,7 +1083,7 @@ function reportCanvas(){
   var C = {ink:'#1d1b19', muted:'#6b6560', line:'#e4dfd9', soft:'#fdecea', box:'#f6f4f1', sys:'#c0392b', dia:'#2563a8', hi:'#b42318'};
   var FONT = '-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif';
   var W = 1080, M = 56, rowH = 62, chartH = a.length>1 ? 440 : 0;
-  var H = 1800 + chartH + days.length*rowH + LAB.length*58;   // generous; cropped to the content at the end
+  var H = 1800 + chartH + days.length*rowH + LAB.length*74;   // generous; cropped to the content at the end
   var c = document.createElement('canvas'); c.width = W; c.height = H;
   var g = c.getContext('2d');
   var font = function(px, bold){ g.font = (bold?'700 ':'400 ')+px+'px '+FONT; };
@@ -1118,20 +1165,21 @@ function reportCanvas(){
   });
   g.fillStyle = C.line; g.fillRect(M, y, W-2*M, 2);
   // lab results: last 3 test dates
-  var ldays = labDays().slice(0, 3);
-  if (ldays.length){
-    var lkeys = usedKeys(ldays);
-    y += 70; text('🧪 '+t('labRepHead').replace('{n}', ldays.length), M, y, 30, C.ink, true);
+  // each test's own last 3 results (tests are drawn on different schedules, e.g. CBC every 2 weeks, iPTH every 3 months)
+  var lkeys = usedKeys(labDays());
+  if (lkeys.length){
+    y += 70; text('🧪 '+t('labRepHead').replace('{n}', 3), M, y, 30, C.ink, true);
     var lx = [M, M+420, M+620, M+820];
-    y += 50; ldays.forEach(function(dk, i){ text(fDateY(labMs(dk)), lx[i+1], y, 24, C.muted, true); });
+    y += 50; t('labCols').forEach(function(h, i){ text(h, lx[i+1], y, 24, C.muted, true); });
     y += 16;
     lkeys.forEach(function(k){
       g.fillStyle = C.line; g.fillRect(M, y, W-2*M, 2);
-      var by = y + 42;
+      var by = y + 40;
       text(LABK[k].ab, lx[0], by, 28, C.ink, true); text(rngTxt(k), lx[0]+150, by, 22, C.muted, false, 'left', 250);
-      ldays.forEach(function(dk, i){ var it = S.labs.d[dk][k]; if (!it){ text('–', lx[i+1], by, 28, C.muted); return; }
-        var f = labFlag(k, it); text(it[0]+(f==='H'||f==='L'?' '+f:''), lx[i+1], by, 28, f==='L'?C.dia:f?C.hi:C.ink, !!f); });
-      y += 58;
+      labSeries(k).slice(0, 3).forEach(function(p, i){ var f = labFlag(k, p.it);
+        text(p.it[0]+(f==='H'||f==='L'?' '+f:''), lx[i+1], by, 28, f==='L'?C.dia:f?C.hi:C.ink, !!f);
+        text(fDateY(labMs(p.dk)), lx[i+1], by+26, 19, C.muted); });
+      y += 74;
     });
     g.fillStyle = C.line; g.fillRect(M, y, W-2*M, 2);
   }
@@ -1482,7 +1530,7 @@ function parseLabFrag(s){
       v = v.replace(/[^0-9A-Za-z.+\-<>]/g,'').slice(0,12); if (!v) return;
       day[q[1]] = [v, q[3]||'']; o.n++;
     });
-    if (Object.keys(day).length) o.d[m[1]] = day;
+    if (Object.keys(day).length) o.d[m[1]] = addDerived(Object.assign(o.d[m[1]]||{}, day));
   }
   return Object.keys(o.d).length ? o : null;
 }
@@ -1505,7 +1553,7 @@ $('labImp').addEventListener('click', function(e){
   if (e.target.id === 'labImpYes' && pendingLab){
     var o = pendingLab; pendingLab = null;
     Object.keys(o.r).forEach(function(k){ S.labs.r[k] = o.r[k]; });
-    Object.keys(o.d).forEach(function(dk){ S.labs.d[dk] = Object.assign(S.labs.d[dk]||{}, o.d[dk]); });
+    Object.keys(o.d).forEach(function(dk){ S.labs.d[dk] = addDerived(Object.assign(S.labs.d[dk]||{}, o.d[dk])); });
     if (o.uid) S.labs.uid = o.uid;
     persist(); $('labImp').classList.remove('on'); showTab('labs');
     toast(t('labSaved').replace('{n}', Object.keys(o.d).length), 3000);
@@ -1562,22 +1610,28 @@ $('scanBtn').addEventListener('click', openScanner);
 $('scanClose').addEventListener('click', closeScanner);
 
 // Lab table for the doctor page: last n test dates, tests as rows.
+// Each test's own last n results with their dates (tests are drawn on different schedules).
 function labReportHTML(n){
-  var days = labDays().slice(0, n); if (!days.length) return '';
-  var keys = usedKeys(days);
-  return '<h3 style="font-size:16px;margin:16px 0 4px">🧪 '+esc(t('labRepHead').replace('{n}', days.length))+'</h3>'+
-    '<table class="labt"><thead><tr><th></th>'+days.map(function(dk){ var d = new Date(labMs(dk)); return '<th>'+d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+'</th>'; }).join('')+'</tr></thead><tbody>'+
-    keys.map(function(k){ return '<tr><td>'+esc(LABK[k].ab)+' <span class="muted small">'+esc(rngTxt(k))+'</span></td>'+days.map(function(dk){
-      var it = S.labs.d[dk][k]; if (!it) return '<td class="muted">–</td>';
-      var f = labFlag(k, it); return '<td class="'+(f==='L'?'vL':f?'vH':'')+'" style="'+(f?'font-weight:800':'')+'">'+esc(it[0])+(f==='H'||f==='L'?' '+f:'')+'</td>'; }).join('')+'</tr>'; }).join('')+
+  var keys = usedKeys(labDays()); if (!keys.length) return '';
+  var sd = function(dk){ return (+dk.slice(2,4))+'/'+(+dk.slice(4,6))+'/'+(+dk.slice(6,8)); };
+  return '<h3 style="font-size:16px;margin:16px 0 4px">🧪 '+esc(t('labRepHead').replace('{n}', n))+'</h3>'+
+    '<table class="labt"><thead><tr><th></th>'+t('labCols').slice(0, n).map(function(h){ return '<th>'+esc(h)+'</th>'; }).join('')+'</tr></thead><tbody>'+
+    keys.map(function(k){ var s = labSeries(k).slice(0, n);
+      return '<tr><td>'+esc(LABK[k].ab)+' <span class="muted small">'+esc(rngTxt(k))+'</span></td>'+t('labCols').slice(0, n).map(function(h, i){
+        var p = s[i]; if (!p) return '<td class="muted">–</td>';
+        var f = labFlag(k, p.it); return '<td class="'+(f==='L'?'vL':f?'vH':'')+'" style="'+(f?'font-weight:800':'')+'">'+esc(p.it[0])+(f==='H'||f==='L'?' '+f:'')+
+          '<br><span class="muted small" style="font-weight:400">'+sd(p.dk)+'</span></td>'; }).join('')+'</tr>'; }).join('')+
     '</tbody></table>';
 }
 function labSummaryLines(){
   var days = labDays(); if (!days.length) return [];
-  var dk = days[0], L = [];
-  L.push(t('labLatest')+'（'+fDateY(labMs(dk))+'）：');
-  L.push(usedKeys([dk]).map(function(k){ var it = S.labs.d[dk][k], f = labFlag(k, it);
-    return LABK[k].ab+' '+it[0]+(f==='H'?'↑':f==='L'?'↓':f==='T'?'（'+t('flagT')+'）':''); }).join('、'));
+  var L = [t('labLatest')+'：'], byDay = {};
+  // latest value of every test, grouped by the day it was drawn
+  usedKeys(days).forEach(function(k){ var p = labSeries(k)[0]; (byDay[p.dk] = byDay[p.dk] || []).push(k); });
+  Object.keys(byDay).sort().reverse().forEach(function(dk){
+    L.push('（'+fDateY(labMs(dk))+'）'+byDay[dk].map(function(k){ var it = S.labs.d[dk][k], f = labFlag(k, it);
+      return LABK[k].ab+' '+it[0]+(f==='H'?'↑':f==='L'?'↓':f==='T'?'（'+t('flagT')+'）':''); }).join('、'));
+  });
   return L;
 }
 
